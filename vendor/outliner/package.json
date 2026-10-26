@@ -1,0 +1,16 @@
+{
+  "name": "obsidian-canvas-outliner",
+  "version": "0.1.56",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "typescript": "5.9.3",
+    "obsidian": "1.12.3",
+    "@types/node": "24.10.1"
+  }
+}

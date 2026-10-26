@@ -1,0 +1,77 @@
+<div id="uct-portal-outliner-scope">
+  <style>
+    #uct-portal-outliner-scope { --ink:#272522;--muted:#706b65;--line:#e3dfda;--paper:#fff;--soft:#faf9f7;--accent:#b85f46;color:var(--ink);font:14px/1.45 system-ui,'Malgun Gothic',sans-serif;max-width:736px;margin:auto; }
+    #uct-portal-outliner-scope * { box-sizing:border-box; }
+    #uct-portal-outliner-scope .shell { border:1px solid var(--line);border-radius:10px;background:var(--paper);overflow:hidden; }
+    #uct-portal-outliner-scope .bar { padding:10px 14px;border-bottom:1px solid var(--line);font-weight:600; }
+    #uct-portal-outliner-scope .path { padding:10px 14px;color:var(--muted);border-bottom:1px solid var(--line); }
+    #uct-portal-outliner-scope .path strong { color:var(--ink); }
+    #uct-portal-outliner-scope .layout { display:grid;grid-template-columns:minmax(0,1.2fr) minmax(230px,1fr); }
+    #uct-portal-outliner-scope .canvas { padding:18px;background:var(--soft);background-image:radial-gradient(#e3dfda 1px,transparent 1px);background-size:17px 17px;min-height:285px; }
+    #uct-portal-outliner-scope .card { display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:11px 12px;margin:8px 0; }
+    #uct-portal-outliner-scope .kind { color:var(--muted);font-size:12px;white-space:nowrap; }
+    #uct-portal-outliner-scope button { font:inherit;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:7px;padding:7px 10px; }
+    #uct-portal-outliner-scope .go { color:var(--accent);font-weight:600; }
+    #uct-portal-outliner-scope .outliner { border-left:1px solid var(--line);padding:16px; }
+    #uct-portal-outliner-scope h3 { margin:0 0 8px;font-size:16px; }
+    #uct-portal-outliner-scope .row { padding:9px 7px;border-bottom:1px solid var(--line); }
+    #uct-portal-outliner-scope .portal-row { display:flex;justify-content:space-between;gap:8px;align-items:center; }
+    #uct-portal-outliner-scope .hint { color:var(--muted);font-size:12px;margin:11px 0 0; }
+    #uct-portal-outliner-scope .controls { display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid var(--line); }
+    #uct-portal-outliner-scope [hidden] { display:none!important; }
+    @media(max-width:560px){#uct-portal-outliner-scope .layout{grid-template-columns:1fr}#uct-portal-outliner-scope .outliner{border-left:0;border-top:1px solid var(--line)}}
+  </style>
+  <div class="shell">
+    <div class="bar">현재 화면 · Canvas와 Outliner</div>
+    <div class="path" aria-live="polite" data-path><strong>Canvas A</strong></div>
+    <div class="layout">
+      <section class="canvas" aria-label="Canvas에 있는 자료">
+        <div data-view="root">
+          <div class="card"><span>일반 메모</span><span class="kind">카드</span></div>
+          <div class="card"><span>작업공간</span><button class="go cursor-interaction" type="button" data-enter="work">포탈 열기</button></div>
+          <div class="card"><span>공유 참고 Canvas</span><button class="go cursor-interaction" type="button" data-enter="link">링크 열기</button></div>
+        </div>
+        <div data-view="work" hidden>
+          <div class="card"><span>작업 메모</span><span class="kind">카드</span></div>
+          <div class="card"><span>참고자료</span><button class="go cursor-interaction" type="button" data-enter="nested">포탈 열기</button></div>
+        </div>
+        <div data-view="nested" hidden>
+          <div class="card"><span>인테리어 사진</span><span class="kind">이미지 카드</span></div>
+          <div class="card"><span>제품 안내서</span><span class="kind">PDF 카드</span></div>
+        </div>
+        <div data-view="link" hidden>
+          <div class="card"><span>팀 가이드</span><span class="kind">대상 Canvas 카드</span></div>
+          <div class="card"><span>회의 메모</span><span class="kind">대상 Canvas 카드</span></div>
+        </div>
+      </section>
+      <aside class="outliner" aria-label="현재 Canvas 공간의 Outliner">
+        <h3>Outliner</h3>
+        <div data-list="root"><div class="row">일반 메모</div><div class="row">작업공간 <span class="kind">포탈</span></div><div class="row">공유 참고 Canvas <span class="kind">링크 포탈</span></div></div>
+        <div data-list="work" hidden><div class="row">작업 메모</div><div class="row portal-row"><span>참고자료 <span class="kind">포탈</span></span><button type="button" class="cursor-interaction" data-enter="nested">열기</button></div></div>
+        <div data-list="nested" hidden><div class="row">인테리어 사진</div><div class="row">제품 안내서</div></div>
+        <div data-list="link" hidden><div class="row">팀 가이드</div><div class="row">회의 메모</div></div>
+        <p class="hint" data-hint>Canvas A의 항목만 표시합니다.</p>
+      </aside>
+    </div>
+    <div class="controls"><button type="button" class="cursor-interaction" data-back hidden>상위 공간으로 돌아가기</button><span class="hint">포탈은 그 안에 들어갔을 때 해당 공간의 항목으로 바뀝니다.</span></div>
+  </div>
+  <script>
+  (()=>{
+    const root=document.getElementById('uct-portal-outliner-scope');
+    const path=root.querySelector('[data-path]'),back=root.querySelector('[data-back]'),hint=root.querySelector('[data-hint]');
+    const stack=['root'];
+    const names={root:'Canvas A',work:'작업공간',nested:'참고자료',link:'Canvas B · 링크 대상'};
+    function show(next,replace=false){
+      if(next==='link'){stack.splice(0,stack.length,'link');}
+      else if(replace)stack[stack.length-1]=next;else stack.push(next);
+      for(const el of root.querySelectorAll('[data-view],[data-list]'))el.hidden=el.dataset.view!==next&&el.dataset.list!==next;
+      path.replaceChildren(...stack.flatMap((key,i)=>{const label=document.createElement(i===stack.length-1?'strong':'span');label.textContent=names[key];return i?[document.createTextNode('  ›  '),label]:[label]}));
+      back.hidden=stack.length===1||next==='link';
+      hint.textContent=next==='nested'?'참고자료 포탈 안의 카드만 표시합니다.':next==='link'?'링크 Portal이 가리키는 Canvas B를 별도 Canvas처럼 표시합니다.':`현재 ${names[next]} 공간의 항목만 표시합니다.`;
+    }
+    root.querySelectorAll('[data-enter]').forEach(button=>button.addEventListener('click',()=>show(button.dataset.enter,button.dataset.enter==='link')));
+    back.addEventListener('click',()=>{if(stack.length>1)stack.pop();show(stack.at(-1),true)});
+    show('root',true);
+  })();
+  </script>
+</div>

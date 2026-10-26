@@ -1,0 +1,9 @@
+{
+  "id": "canvas-outliner",
+  "name": "Canvas Outliner",
+  "version": "0.1.56",
+  "minAppVersion": "1.12.0",
+  "description": "Canvas Group, registered Items, Collections, Presentation and Canvas Search.",
+  "author": "tlatndms2-droid",
+  "isDesktopOnly": true
+}

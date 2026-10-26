@@ -1,0 +1,606 @@
+{
+  "checkedAt": "2026-10-26",
+  "owner": "tlatndms2-droid",
+  "purpose": "UCT static source study; reference snapshots, not live implementation",
+  "repositories": [
+    {
+      "name": "obsidian-advanced-mindmap",
+      "commit": "f8a707bfc3dbe0f8e5d4f23b16198bc3efa827ef",
+      "version": "0.5.24",
+      "files": [
+        {
+          "path": "README.md",
+          "blob": "e591b2020fb38904fd13abec7a685f1d7ab11941",
+          "lines": 56
+        },
+        {
+          "path": "manifest.json",
+          "blob": "b26bfcac1578335af1c6a117db7b9c0046431ebb",
+          "lines": 10
+        },
+        {
+          "path": "src/arrange.ts",
+          "blob": "72d7aa7773fc89c83bd4c74d26c074d4c9ab8d89",
+          "lines": 116
+        },
+        {
+          "path": "src/card-media.ts",
+          "blob": "8d09068c7cbcfacf6d809e70a0643265f6f9e1b1",
+          "lines": 52
+        },
+        {
+          "path": "src/creation-transaction.ts",
+          "blob": "77886224f915e2c50e06e0ca9c7595331eced989",
+          "lines": 14
+        },
+        {
+          "path": "src/editor-camera.ts",
+          "blob": "d4963c736cfc9c23a3ea0e13bb134fbd2470814e",
+          "lines": 72
+        },
+        {
+          "path": "src/file-insert-data.ts",
+          "blob": "cdb4fbbf6d91aa3d3adafd44a3c095dcde2d458d",
+          "lines": 18
+        },
+        {
+          "path": "src/file-insert.ts",
+          "blob": "7075fa2462954cb88fe3dd288fa2144f36c276a1",
+          "lines": 111
+        },
+        {
+          "path": "src/image-date-groups.ts",
+          "blob": "348d1d591e6a2eba41c70f864754717e8ead63d8",
+          "lines": 14
+        },
+        {
+          "path": "src/layout.ts",
+          "blob": "3ded4b1c815c4a57828fc9958e1fdd380f78755d",
+          "lines": 39
+        },
+        {
+          "path": "src/main.ts",
+          "blob": "5a84c49d6b24a0be68485a792866d412231dc409",
+          "lines": 442
+        },
+        {
+          "path": "src/media-previews.ts",
+          "blob": "332aeb7d35f06b534c4f7c3d779a0672e6b905c5",
+          "lines": 36
+        },
+        {
+          "path": "src/navigation.ts",
+          "blob": "961a9c9ed5b2a2fd5a26719ef5b090cfa500d69d",
+          "lines": 110
+        },
+        {
+          "path": "src/panels.ts",
+          "blob": "a63033b5faa730b05dfec6d8ccf34f006009c09c",
+          "lines": 75
+        },
+        {
+          "path": "src/runtime-cleanup.ts",
+          "blob": "56d27ac313167b85bd1218894f876dc25f2af352",
+          "lines": 15
+        },
+        {
+          "path": "src/selection-history.ts",
+          "blob": "e7ba1e5de276948fe83f06f8198e1e7188eee9d7",
+          "lines": 26
+        },
+        {
+          "path": "src/settings-backup.ts",
+          "blob": "13355c6c1f5ce4ce51f50f1ae08e9244c07b5c9d",
+          "lines": 19
+        },
+        {
+          "path": "src/settings-transfer.ts",
+          "blob": "4180f5769664eea2f9d7aa530b2a69611f6072fb",
+          "lines": 12
+        },
+        {
+          "path": "src/size.ts",
+          "blob": "59ed091a689c1c9fab3181bd966e7f63b329a2e9",
+          "lines": 116
+        }
+      ]
+    },
+    {
+      "name": "obsidian-canvas-outliner",
+      "commit": "df744083bc39addaafd4ea55ae0fa77e9f626ed4",
+      "version": "0.1.56",
+      "files": [
+        {
+          "path": "04_Codex_Handoff.md",
+          "blob": "326fcb33fbb113697e855fa6f92e06e1cdfa438c",
+          "lines": 39
+        },
+        {
+          "path": "README.md",
+          "blob": "14195af85bb559f2045234f1845e44d4859233d6",
+          "lines": 67
+        },
+        {
+          "path": "manifest.json",
+          "blob": "9d26baa8be1bf533ad9c6c456386b9ccb2d745b4",
+          "lines": 10
+        },
+        {
+          "path": "src/adapter.ts",
+          "blob": "c69171e062edf58a2578f44a0828530162477a24",
+          "lines": 29
+        },
+        {
+          "path": "src/area-selection.ts",
+          "blob": "ff29fea2a4c1a1e211841f3a253df03ae51436a2",
+          "lines": 157
+        },
+        {
+          "path": "src/copy.ts",
+          "blob": "b490f22b6dc9acf13fb44ed525950f8dd0e87f1a",
+          "lines": 23
+        },
+        {
+          "path": "src/identity.ts",
+          "blob": "b7a638511320611d044366bd024edb67b4e9b27f",
+          "lines": 46
+        },
+        {
+          "path": "src/main.ts",
+          "blob": "522dfdf40813ef385a42e257dfc0acb3736c2317",
+          "lines": 197
+        },
+        {
+          "path": "src/model.ts",
+          "blob": "b97df4080ab84ae2ea61796234efa435daccb18e",
+          "lines": 89
+        },
+        {
+          "path": "src/pin.ts",
+          "blob": "ee7e2aff13b2894f06d35fb0da924050bd6a3878",
+          "lines": 10
+        },
+        {
+          "path": "src/presentation.ts",
+          "blob": "d4249e605e23cc02333dca34c31c0945ac646eb4",
+          "lines": 100
+        },
+        {
+          "path": "src/search.ts",
+          "blob": "10c7f88b4bfe63b7685d618f7fc4bbfd42d82be5",
+          "lines": 26
+        },
+        {
+          "path": "src/storage.ts",
+          "blob": "359e2458aecd5951935c55ecaeb8af9ce7199d5a",
+          "lines": 47
+        },
+        {
+          "path": "src/vision-group.ts",
+          "blob": "2a870634184c040e3243511bdd26896153aff628",
+          "lines": 116
+        }
+      ]
+    },
+    {
+      "name": "obsidian-canvas-portal",
+      "commit": "199bd978a348c3b290035b410d5c84981af25fc4",
+      "version": "0.4.10",
+      "files": [
+        {
+          "path": "README.md",
+          "blob": "58cfaab46370eaba11584dea22c61d94941e4b30",
+          "lines": 94
+        },
+        {
+          "path": "manifest.json",
+          "blob": "ee47fdb9622c85473f179f46b2e7694123a33cd5",
+          "lines": 10
+        },
+        {
+          "path": "src/main.cjs",
+          "blob": "fbbdc5ada0e96f9b82284bbaa19347bcfaad039f",
+          "lines": 875
+        },
+        {
+          "path": "src/model.cjs",
+          "blob": "8253213f22d0ef428dea8f92ab4e1eb1830a3b91",
+          "lines": 199
+        },
+        {
+          "path": "src/backup.cjs",
+          "blob": "97dd355bcdc3c0fa0be92247ad1d1b03b6d9faff",
+          "lines": 129
+        },
+        {
+          "path": "src/safety.cjs",
+          "blob": "eeec639eea23c02a04cbf140b9d68ed434e826d9",
+          "lines": 75
+        }
+      ]
+    },
+    {
+      "name": "obsidian-canvas-visibility",
+      "commit": "fe3a3bd6178a968f8ba544ab3b467e92254c1fe6",
+      "version": "0.7.1",
+      "files": [
+        {
+          "path": "PROJECT_HANDOFF.md",
+          "blob": "c3090dc9cc86221378a9f05b6fd19e02528a5570",
+          "lines": 99
+        },
+        {
+          "path": "README.md",
+          "blob": "c364e200863e268a082e7c6222dd0ec51cf1f2c0",
+          "lines": 68
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "blob": "1fe13efa8608075a96513ef95f31012ca8e30d29",
+          "lines": 27
+        },
+        {
+          "path": "manifest.json",
+          "blob": "85737014f79edb7eb0260f76d068dc97bcd6f69c",
+          "lines": 10
+        },
+        {
+          "path": "src/canvas/canvas-adapter.ts",
+          "blob": "98c7cd7ececd1e393dbb59e97f5c7eb3ee472733",
+          "lines": 99
+        },
+        {
+          "path": "src/collapse/collapse-manager.ts",
+          "blob": "1e1f91cd86f89514bd0bd40e575900bf43e65c58",
+          "lines": 496
+        },
+        {
+          "path": "src/collapse/title-prompt-modal.ts",
+          "blob": "d7f1b056db55db96719a424eeffe48df5f764990",
+          "lines": 74
+        },
+        {
+          "path": "src/collapse/title-resolver.ts",
+          "blob": "cf406c58675d181640e1f767a16d19004a73774f",
+          "lines": 34
+        },
+        {
+          "path": "src/collapse/title-size-modal.ts",
+          "blob": "bc00695f33ff1678e4698c8af052b3838390d9e4",
+          "lines": 137
+        },
+        {
+          "path": "src/commands/commands.ts",
+          "blob": "ec02a9a25769ad596e522ebe30cec662df366bdd",
+          "lines": 85
+        },
+        {
+          "path": "src/editor/editor-manager.ts",
+          "blob": "8498900d1f75aa2cf02f05753c006bf51e96f541",
+          "lines": 109
+        },
+        {
+          "path": "src/editor/floating-editor.ts",
+          "blob": "cfb00f1a2a5b59d87b1c663a45e3fe80b66e8895",
+          "lines": 291
+        },
+        {
+          "path": "src/editor/native-markdown-editor.ts",
+          "blob": "a23ef0e1e4a308bd31225a04adacf8071f4d36cf",
+          "lines": 84
+        },
+        {
+          "path": "src/main.ts",
+          "blob": "e2110db92525f3d6764cbca1aa9ccad8ef805bc6",
+          "lines": 159
+        },
+        {
+          "path": "src/settings/settings.ts",
+          "blob": "add72c30870ffee396b174a4c5a0f506d63f0eda",
+          "lines": 113
+        },
+        {
+          "path": "src/storage/metadata-store.ts",
+          "blob": "51707726459c5f9768862122463b626f9868f980",
+          "lines": 60
+        },
+        {
+          "path": "src/types.ts",
+          "blob": "07e943d5749950eb649868c44fffc93e13d01bc8",
+          "lines": 92
+        }
+      ]
+    },
+    {
+      "name": "canvas-image-copy",
+      "commit": "83bf3d6199a18645e82be82a64db3e0d09447a47",
+      "version": "0.1.0",
+      "files": [
+        {
+          "path": "README.md",
+          "blob": "d807cab50599fe956b37a9a91087a759612233af",
+          "lines": 45
+        },
+        {
+          "path": "manifest.json",
+          "blob": "4a78cb9c238a2792745272e9652ebbd7f20e3bb1",
+          "lines": 2
+        },
+        {
+          "path": "src/files.ts",
+          "blob": "1e1b316c96f37b937412226ba7d2680c7d3c8d9e",
+          "lines": 18
+        },
+        {
+          "path": "src/main.ts",
+          "blob": "90f241dd968e954578c5fbef7f3913fd3f0158b5",
+          "lines": 83
+        }
+      ]
+    },
+    {
+      "name": "obsidian-canvas-pdf-viewcard",
+      "commit": "f2982a6fef74246df3bf8476a1ec2ed83dcdbd07",
+      "version": "0.1.2",
+      "files": [
+        {
+          "path": "README.md",
+          "blob": "eed32d287be43f0424fee77aeb2c0d92991c42dc",
+          "lines": 77
+        },
+        {
+          "path": "docs/IMPLEMENTATION.md",
+          "blob": "e427bb7df14bee0a89348d1177099fbafe41dd64",
+          "lines": 40
+        },
+        {
+          "path": "manifest.json",
+          "blob": "b2307f9b824e3f2e90c67e5eb333cac9ba00456c",
+          "lines": 10
+        },
+        {
+          "path": "src/main.ts",
+          "blob": "1261cdfdf999f5aa75b531acd98f83b47a6dd623",
+          "lines": 186
+        },
+        {
+          "path": "src/model.ts",
+          "blob": "acd8766a876499818d71232c67ed5fbc9cf4f67d",
+          "lines": 48
+        },
+        {
+          "path": "src/pdf-pool.ts",
+          "blob": "812b8dd8e63815699958508cafa350042764e0f7",
+          "lines": 40
+        },
+        {
+          "path": "src/viewer.ts",
+          "blob": "f45f600fab99fe4a0aa459240c65e0d8cf2998c4",
+          "lines": 354
+        }
+      ]
+    },
+    {
+      "name": "canvas-palette",
+      "commit": "de8172f3fbdfe002abf0fcc9ac05eb375c226a24",
+      "version": "0.4.7",
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "blob": "45af8ae933dccd3fdfdb94d26a6b5853b44f55a8",
+          "lines": 7
+        },
+        {
+          "path": "README.md",
+          "blob": "9f3fd7fd83efc1f4894e61902bd2b088f55d9242",
+          "lines": 130
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "blob": "1871730241172de991196853b28ea1eda30b870a",
+          "lines": 4
+        },
+        {
+          "path": "docs/DATA_MODEL.md",
+          "blob": "84cef31a4539bc02a65b49067ae2978a95ea8c8a",
+          "lines": 4
+        },
+        {
+          "path": "manifest.json",
+          "blob": "05d6e7c277fdc4558ed2268a9081fceb71fc95da",
+          "lines": 10
+        },
+        {
+          "path": "src/canvas/canvas-adapter.ts",
+          "blob": "1004d495dd9a0d2c03669fb1e568e8d16d6bce77",
+          "lines": 942
+        },
+        {
+          "path": "src/canvas/canvas-caption-control.ts",
+          "blob": "1a7b955005c5076b643880ccea0ce9bdb9b5d195",
+          "lines": 70
+        },
+        {
+          "path": "src/canvas/canvas-metadata-controller.ts",
+          "blob": "956e9a035568929e8a089f9eafbc971c11c99933",
+          "lines": 275
+        },
+        {
+          "path": "src/canvas/canvas-node-toolbar-controller.ts",
+          "blob": "431941f1d5ebc4f5609f148c5e36abafa618f702",
+          "lines": 139
+        },
+        {
+          "path": "src/canvas/export-placement-controller.ts",
+          "blob": "f15c17047d983bbd2646bda84f040f35df99a1e0",
+          "lines": 88
+        },
+        {
+          "path": "src/canvas/group-serializer.ts",
+          "blob": "c5f73a329f12fbf8e473b45a35727cb2126a685d",
+          "lines": 48
+        },
+        {
+          "path": "src/canvas/palette-drop-controller.ts",
+          "blob": "4282b0e13cc4f654a0149334526f20423ef0040f",
+          "lines": 48
+        },
+        {
+          "path": "src/canvas/placement-collision.ts",
+          "blob": "2fd5aecd3e6c2720f5687ed9dc2df461d3020f99",
+          "lines": 35
+        },
+        {
+          "path": "src/canvas/text-scrap-highlights.ts",
+          "blob": "7ea0cff2b61cc2d993f60abbdcb475a52b154c22",
+          "lines": 66
+        },
+        {
+          "path": "src/core/canvas-node-presence.ts",
+          "blob": "cb663b332ac03384816e843e7a37b2b52040d6d4",
+          "lines": 4
+        },
+        {
+          "path": "src/core/canvas-node-replacement.ts",
+          "blob": "ca2b1cf2b97685ac556cf9d5c9b80c0370db4069",
+          "lines": 24
+        },
+        {
+          "path": "src/core/defaults.ts",
+          "blob": "f4b005229ddf8793116f097961abd407ca9f02d9",
+          "lines": 112
+        },
+        {
+          "path": "src/core/highlight-export.ts",
+          "blob": "f57b519c8a8ada763818da375e393b99170bcac9",
+          "lines": 96
+        },
+        {
+          "path": "src/core/ids.ts",
+          "blob": "93923f73e9598e91cfbffb755748d25f5b00bc3d",
+          "lines": 4
+        },
+        {
+          "path": "src/core/media.ts",
+          "blob": "13ba9c6509f3f1948f131a68c3a69a979279882c",
+          "lines": 13
+        },
+        {
+          "path": "src/core/serial-task-queue.ts",
+          "blob": "becf85f5f044c6661808d8197965396de631d11a",
+          "lines": 15
+        },
+        {
+          "path": "src/core/store.ts",
+          "blob": "2ca423247be48b8ee97f417a00eb08f96de63287",
+          "lines": 1281
+        },
+        {
+          "path": "src/core/types.ts",
+          "blob": "07568ccd45e60b7038cf7a99301eed14b72f3398",
+          "lines": 200
+        },
+        {
+          "path": "src/editor/editor-manager.ts",
+          "blob": "55894df205a7574fad8533acdc37606e32744788",
+          "lines": 62
+        },
+        {
+          "path": "src/editor/floating-editor.ts",
+          "blob": "d423a3b7f45c05778675a7db754e53f011b3695f",
+          "lines": 161
+        },
+        {
+          "path": "src/editor/native-markdown-editor.ts",
+          "blob": "0d4c01f1db7b318595fa0f42369a1079204d8773",
+          "lines": 64
+        },
+        {
+          "path": "src/main.ts",
+          "blob": "30ae0f202bf9607f5b397a8427571697e29653ad",
+          "lines": 982
+        },
+        {
+          "path": "src/mini-palette/floating-mini-palette.ts",
+          "blob": "9602e8995e3741981f24df36e90b96e137624c24",
+          "lines": 531
+        },
+        {
+          "path": "src/preview/preview-service.ts",
+          "blob": "45f0cf82e423b6190e28b827bfaf9441d8906007",
+          "lines": 179
+        },
+        {
+          "path": "src/search/search-service.ts",
+          "blob": "92b1c6fb072edd9d3bcfc23508c6af14cf328338",
+          "lines": 93
+        },
+        {
+          "path": "src/settings/settings-tab.ts",
+          "blob": "d42c25b7b65fdcbfd91e03ccdb638a061f6d1abc",
+          "lines": 28
+        },
+        {
+          "path": "src/side-palette/side-palette-view.ts",
+          "blob": "2b8e7ba9dbd6bc22ae478edcd2eb3d3120b7badc",
+          "lines": 1178
+        },
+        {
+          "path": "src/ui/asset-density.ts",
+          "blob": "2f9d91b5b7d01f82ad47b5d5f4e77055ad171ade",
+          "lines": 59
+        },
+        {
+          "path": "src/ui/find-link-modal.ts",
+          "blob": "1c2e290fdc5a88f728042e828901a9c60cc0cfc8",
+          "lines": 70
+        },
+        {
+          "path": "src/ui/highlight-export-modal.ts",
+          "blob": "9b9117174772461b0f301d62d3c73914d4d5b88d",
+          "lines": 56
+        },
+        {
+          "path": "src/ui/item-preview-modal.ts",
+          "blob": "c46c8efe4697e778fe7f4ddb2208265ed6c5b6f2",
+          "lines": 78
+        },
+        {
+          "path": "src/ui/label-color-picker.ts",
+          "blob": "1c221087aff1863fd185b2e653c620ed9abb961f",
+          "lines": 50
+        },
+        {
+          "path": "src/ui/linked-spaces-modal.ts",
+          "blob": "93910295bcd9359a69226305f92f67b1ac613b37",
+          "lines": 53
+        },
+        {
+          "path": "src/ui/modal.ts",
+          "blob": "b3ff8c88fef9e85a8cd9d0ae008a9d9ceda4cdc6",
+          "lines": 676
+        },
+        {
+          "path": "src/ui/render.ts",
+          "blob": "5144c42b34d363fc6ac76dd21f330ee4af9c7ac2",
+          "lines": 198
+        },
+        {
+          "path": "src/ui/resizable.ts",
+          "blob": "3d202a3379d7f2f9bef9d98eae2b24ab0d042b40",
+          "lines": 45
+        },
+        {
+          "path": "src/ui/responsive-layout.ts",
+          "blob": "e4f4974bdd11cafd5ab0c19df8f3e9d87d50e3e2",
+          "lines": 53
+        },
+        {
+          "path": "src/ui/workspace-explorer-modal.ts",
+          "blob": "4c162d2b9c5fac02dc1f7df2f5dec040a2330f5b",
+          "lines": 115
+        }
+      ]
+    }
+  ]
+}

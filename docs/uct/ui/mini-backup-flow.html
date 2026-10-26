@@ -1,0 +1,111 @@
+<div id="uct-mini-backup-flow" aria-label="미니팔레트 수동 백업과 복구 흐름">
+  <style>
+    #uct-mini-backup-flow {
+      --ink:#292723; --muted:#746f68; --line:#ded9d1; --surface:#fff;
+      --soft:#f8f6f2; --accent:#c9654b; --accent-soft:#f8ebe6;
+      color:var(--ink); font:15px/1.5 system-ui,"Malgun Gothic",sans-serif;
+      max-width:760px; margin:0 auto;
+    }
+    #uct-mini-backup-flow * { box-sizing:border-box; }
+    #uct-mini-backup-flow h2 { font-size:1.3rem; margin:0 0 3px; }
+    #uct-mini-backup-flow p { margin:0; }
+    #uct-mini-backup-flow .muted { color:var(--muted); }
+    #uct-mini-backup-flow .app { border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--surface); margin:14px 0; }
+    #uct-mini-backup-flow .titlebar { padding:10px 14px; border-bottom:1px solid var(--line); }
+    #uct-mini-backup-flow .brand { font-family:Georgia,serif; font-size:1.2rem; }
+    #uct-mini-backup-flow button { font:inherit; color:inherit; background:var(--surface); border:1px solid var(--line); border-radius:7px; padding:6px 10px; cursor:pointer; }
+    #uct-mini-backup-flow button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+    #uct-mini-backup-flow .menu { display:grid; gap:6px; padding:8px 0; }
+    #uct-mini-backup-flow .menu button { width:100%; text-align:left; }
+    #uct-mini-backup-flow .menu button[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-soft); color:#8e402e; }
+    #uct-mini-backup-flow .mock { display:grid; grid-template-columns:175px 1fr; min-height:135px; }
+    #uct-mini-backup-flow .sidebar { padding:13px; border-right:1px solid var(--line); display:flex; flex-direction:column; }
+    #uct-mini-backup-flow .tree { margin:10px 0 0; padding:0; list-style:none; }
+    #uct-mini-backup-flow .tree li { padding:4px 0; }
+    #uct-mini-backup-flow .indent { padding-left:16px!important; color:var(--muted); }
+    #uct-mini-backup-flow .backup-entry { margin-top:auto; padding-top:14px; }
+    #uct-mini-backup-flow .content { padding:16px; }
+    #uct-mini-backup-flow .content h3 { margin:0 0 8px; font-size:1rem; }
+    #uct-mini-backup-flow .flow { border-top:1px solid var(--line); padding-top:12px; margin-top:12px; }
+    #uct-mini-backup-flow .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    #uct-mini-backup-flow .step { min-width:0; }
+    #uct-mini-backup-flow .number { color:var(--accent); font-weight:700; margin-right:5px; }
+    #uct-mini-backup-flow .file { margin-top:7px; padding:9px; border:1px dashed var(--line); border-radius:7px; background:var(--soft); font-size:.9rem; }
+    #uct-mini-backup-flow .note { margin-top:10px; padding:9px 11px; background:var(--accent-soft); border-radius:7px; }
+    #uct-mini-backup-flow [hidden] { display:none!important; }
+    @media (max-width:520px) {
+      #uct-mini-backup-flow { font-size:14px; }
+      #uct-mini-backup-flow .mock { grid-template-columns:125px 1fr; }
+      #uct-mini-backup-flow .steps { grid-template-columns:1fr; gap:9px; }
+      #uct-mini-backup-flow .sidebar { padding:10px; }
+      #uct-mini-backup-flow .content { padding:12px; }
+    }
+  </style>
+  <span class="muted">미니팔레트 · 다음 기획 항목</span>
+  <h2>수동 백업과 복구를 어디서 실행할까요?</h2>
+  <p class="muted">기존 디자인의 왼쪽 아래 ‘백업’ 항목을 눌러 두 기능을 여는 배치 시안입니다.</p>
+
+  <section class="app" aria-label="미니팔레트 UI 시안">
+    <div class="titlebar">
+      <span class="brand">Storage</span>
+    </div>
+    <div class="mock">
+      <aside class="sidebar">
+        <strong>폴더</strong>
+        <ul class="tree">
+          <li>Collect</li><li>프로젝트</li><li class="indent">레퍼런스</li><li>미분류</li>
+        </ul>
+        <div class="backup-entry">
+          <button type="button" id="uct-backup-entry" aria-expanded="false" aria-controls="uct-backup-menu">백업</button>
+          <div class="menu" id="uct-backup-menu" role="group" aria-label="백업 메뉴" hidden>
+            <button type="button" data-mode="backup" aria-pressed="true">백업 파일 만들기</button>
+            <button type="button" data-mode="restore" aria-pressed="false">백업에서 복구</button>
+          </div>
+        </div>
+      </aside>
+      <div class="content">
+        <section id="uct-backup-panel" aria-live="polite">
+          <h3>백업 파일 만들기</h3>
+          <div class="steps">
+            <div class="step"><span class="number">1</span>더보기에서 백업 선택</div>
+            <div class="step"><span class="number">2</span>저장할 위치를 고르고 파일 이름 지정<div class="file">UCT-Mini-Backup.zip</div></div>
+            <div class="step"><span class="number">3</span>현재 자료와 필요한 이미지·PDF가 ZIP 하나에 저장</div>
+          </div>
+          <p class="note">사용자가 직접 실행할 때만 만들고, 저장 위치는 매번 선택합니다.</p>
+        </section>
+        <section id="uct-restore-panel" aria-live="polite" hidden>
+          <h3>백업에서 복구</h3>
+          <div class="steps">
+            <div class="step"><span class="number">1</span>더보기에서 복구 선택</div>
+            <div class="step"><span class="number">2</span>복구할 ZIP 파일 선택<div class="file">UCT-Mini-Backup.zip</div></div>
+            <div class="step"><span class="number">3</span>Storage에 새 복구 폴더 추가<div class="file">복구 · 날짜와 시간<br>기존 폴더는 유지</div></div>
+          </div>
+          <p class="note">백업 안의 Collect·폴더·아이템 구조를 보존하며 기존 자료를 덮어쓰지 않습니다.</p>
+        </section>
+      </div>
+    </div>
+  </section>
+</div>
+<script>
+(() => {
+  const root = document.getElementById("uct-mini-backup-flow");
+  if (!root) return;
+  const buttons = root.querySelectorAll("[data-mode]");
+  const entry = root.querySelector("#uct-backup-entry");
+  const menu = root.querySelector("#uct-backup-menu");
+  const backup = root.querySelector("#uct-backup-panel");
+  const restore = root.querySelector("#uct-restore-panel");
+  entry.addEventListener("click", () => {
+    menu.hidden = !menu.hidden;
+    entry.setAttribute("aria-expanded", String(!menu.hidden));
+  });
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const isBackup = button.dataset.mode === "backup";
+      backup.hidden = !isBackup;
+      restore.hidden = isBackup;
+      buttons.forEach((peer) => peer.setAttribute("aria-pressed", String(peer === button)));
+    });
+  });
+})();
+</script>

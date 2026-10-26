@@ -1,0 +1,1 @@
+{ "compilerOptions": { "target": "ES2022", "module": "commonjs", "moduleResolution": "node", "lib": ["DOM", "DOM.Iterable", "ES2022"], "strict": true, "skipLibCheck": true, "esModuleInterop": true, "types": ["node"], "noEmit": true, "allowImportingTsExtensions": true }, "include": ["src/**/*.ts", "tests/**/*.ts"] }

@@ -1,0 +1,197 @@
+import { setIcon } from "obsidian";
+import type CanvasPalettePlugin from "../main";
+import type { CardFace, PaletteItem, PaletteItemType } from "../core/types";
+import type { PreviewService } from "../preview/preview-service";
+
+export const TYPE_ICON: Record<PaletteItemType, string> = {
+  card: "sticky-note",
+  markdown: "file-text",
+  image: "image",
+  video: "video",
+  link: "link",
+  group: "boxes"
+};
+
+export function iconButton(parent: HTMLElement, icon: string, label: string, onClick: () => void): HTMLButtonElement {
+  const button = parent.createEl("button", { cls: "clickable-icon cp-icon-button", attr: { "aria-label": label, title: label, "data-tooltip-position": "top", type: "button" } });
+  setIcon(button, icon);
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+export type MarkdownSourceStatus = "deleted";
+export interface ItemRenderOptions { selected: boolean; showSelectionMarker?: boolean; compact?: boolean; draggable?: boolean; dragItemIds?: string[]; miniCollect?: boolean; currentFace?: CardFace; unlinked?: boolean; markdownSourceStatus?: MarkdownSourceStatus | null; onMarkdownSourceStatus?: (event: MouseEvent) => void; onToggleFace?: (face: CardFace) => void; titleEditing?: boolean; onStartTitleEdit?: () => void; onCommitTitle?: (title: string) => void; onCancelTitleEdit?: () => void; onStartBodyEdit?: () => void; onEditMenu?: (event: MouseEvent, anchor: HTMLElement) => void; onSelect: (event: MouseEvent | KeyboardEvent) => void; onOpen?: () => void; onLocate?: () => void; onContextMenu?: (event: MouseEvent) => void; }
+
+export function supportsFrontBack(item: PaletteItem): boolean { return item.type !== "group" && item.type !== "link"; }
+
+const itemRenderState = new WeakMap<HTMLElement, { signature: string; options: ItemRenderOptions }>();
+const reusedItems = new WeakSet<HTMLElement>();
+let reusableItems: Map<string, HTMLElement[]> | null = null;
+/** A synchronous render-local pool; no detached cards are retained after rendering. */
+export function withItemReuse(root: HTMLElement | undefined, render: () => void): void {
+  const previous = reusableItems;
+  const pool = new Map<string, HTMLElement[]>();
+  root?.querySelectorAll<HTMLElement>(".cp-item[data-item-id]").forEach((card) => { const id = card.dataset.itemId!; pool.set(id, [...(pool.get(id) ?? []), card]); });
+  reusableItems = pool;
+  try { render(); } finally { reusableItems = previous; }
+}
+export function wasItemReused(card: HTMLElement): boolean { return reusedItems.has(card); }
+
+export function renderItem(parent: HTMLElement, item: PaletteItem, options: ItemRenderOptions & { previewKey?: string }): HTMLElement {
+  const signature = JSON.stringify([item, options.compact, options.draggable, options.miniCollect, options.currentFace, options.unlinked, options.markdownSourceStatus, options.titleEditing, Boolean(options.onToggleFace), Boolean(options.onEditMenu), options.previewKey]);
+  const reusable = reusableItems?.get(item.id)?.shift();
+  const previous = reusable && itemRenderState.get(reusable);
+  if (reusable && previous?.signature === signature && !options.titleEditing) {
+    Object.assign(previous.options, options);
+    reusable.toggleClass("is-selected", options.selected);
+    const marker = reusable.querySelector(":scope > .cp-item__selection");
+    if (options.selected && options.showSelectionMarker !== false) {
+      if (!marker) { const added = reusable.createSpan({ cls: "cp-item__selection", attr: { "aria-label": "Selected" } }); setIcon(added, "check"); reusable.prepend(added); }
+    } else marker?.remove();
+    parent.appendChild(reusable); reusedItems.add(reusable); return reusable;
+  }
+  const cutFromCanvas = item.type === "group" && item.cutFromCanvas === true;
+  const canvasLinks = new Map<string, string[]>();
+  const addCanvasLink = (canvasPath: string | undefined, nodeId: string | undefined): void => {
+    if (!canvasPath || !nodeId) return;
+    const ids = canvasLinks.get(canvasPath) ?? [];
+    if (!ids.includes(nodeId)) ids.push(nodeId);
+    canvasLinks.set(canvasPath, ids);
+  };
+  addCanvasLink(item.origin.canvasPath, item.origin.canvasNodeId);
+  for (const placement of item.canvasPlacements) for (const nodeId of placement.nodeIds) addCanvasLink(placement.canvasPath, nodeId);
+  const canvasPaths = [...canvasLinks.keys()];
+  const unlinked = options.unlinked ?? canvasPaths.length === 0;
+  const showUnlinked = !cutFromCanvas && unlinked;
+  const card = parent.createDiv({ cls: `cp-item cp-item--${item.type}${cutFromCanvas ? " cp-item--cut" : ""}${options.selected ? " is-selected" : ""}${options.compact ? " is-compact" : ""}` });
+  card.dataset.itemId = item.id;
+  itemRenderState.set(card, { signature, options });
+  card.tabIndex = 0;
+  if (options.selected && options.showSelectionMarker !== false) { const marker = card.createSpan({ cls: "cp-item__selection", attr: { "aria-label": "Selected" } }); setIcon(marker, "check"); }
+  const header = card.createDiv({ cls: "cp-item__header" });
+  const icon = header.createSpan({ cls: "cp-item__icon" });
+  if (cutFromCanvas) { setIcon(icon, "scissors"); icon.addClass("cp-item__type-badge", "cp-item__type-badge--cut"); }
+  else { setIcon(icon, TYPE_ICON[item.type]); icon.addClass("cp-item__type-badge", `cp-item__type-badge--${item.type}`); }
+  if (options.titleEditing) {
+    const title = header.createEl("input", { cls: "cp-item__title-input", value: item.displayTitle, attr: { type: "text", "aria-label": "카드 제목" } });
+    const stop = (event: Event): void => event.stopPropagation();
+    title.addEventListener("pointerdown", stop); title.addEventListener("click", stop); title.addEventListener("dblclick", stop);
+    title.addEventListener("keydown", (event) => { event.stopPropagation(); if (event.key === "Enter") { event.preventDefault(); options.onCommitTitle?.(title.value); } else if (event.key === "Escape") { event.preventDefault(); options.onCancelTitleEdit?.(); } });
+    title.addEventListener("blur", () => options.onCommitTitle?.(title.value));
+  } else header.createSpan({ cls: "cp-item__title", text: item.displayTitle || "Untitled" });
+  const face = options.currentFace ?? "front";
+  if (item.label) {
+    const label = header.createSpan({ cls: "cp-label", text: item.label });
+    if (item.labelColor) label.style.setProperty("--cp-label-color", item.labelColor);
+  }
+  if (showUnlinked || options.onToggleFace || options.markdownSourceStatus || options.onEditMenu) {
+    const actions = header.createSpan({ cls: "cp-item__header-actions" });
+    if (options.markdownSourceStatus) {
+      const source = options.markdownSourceStatus;
+      const labels: Record<MarkdownSourceStatus, string> = {
+        deleted: "원본 MD가 삭제되었습니다. 복구하거나 Palette에서 삭제할 수 있습니다."
+      };
+      const icons: Record<MarkdownSourceStatus, string> = { deleted: "file-x" };
+      const state = actions.createEl("button", { cls: `clickable-icon cp-source-state cp-source-state--${source}`, attr: { type: "button", "aria-label": labels[source], title: labels[source] } });
+      setIcon(state, icons[source]);
+      state.addEventListener("pointerdown", (event) => event.stopPropagation());
+      state.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); options.onMarkdownSourceStatus?.(event); });
+      state.addEventListener("dblclick", (event) => event.stopPropagation());
+    } else if (showUnlinked) {
+      const unlinkedBadge = actions.createSpan({ cls: "cp-item__link-state cp-item__link-state--unlinked", attr: { "aria-label": "Unlinked from Canvas", title: "Unlinked from Canvas" } });
+      setIcon(unlinkedBadge, "unlink");
+    }
+    if (options.onToggleFace) {
+      const flip = actions.createEl("button", { cls: "clickable-icon cp-face-toggle", attr: { type: "button", "aria-label": face === "front" ? "Show back" : "Show front", title: face === "front" ? "Show back" : "Show front" } });
+      setIcon(flip, "refresh-cw");
+      flip.addEventListener("pointerdown", (event) => event.stopPropagation());
+      flip.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); options.onToggleFace?.(face === "front" ? "back" : "front"); });
+      flip.addEventListener("dblclick", (event) => event.stopPropagation());
+    }
+    if (options.onEditMenu && (item.type === "card" || item.type === "markdown")) {
+      const edit = actions.createEl("button", { cls: "clickable-icon cp-item-edit", attr: { type: "button", "aria-label": "편집", title: "편집" } }); setIcon(edit, "pencil");
+      edit.addEventListener("pointerdown", (event) => event.stopPropagation()); edit.addEventListener("click", (event) => { event.preventDefault(); event.stopPropagation(); options.onEditMenu?.(event, edit); }); edit.addEventListener("dblclick", (event) => event.stopPropagation());
+    }
+  }
+  const body = card.createDiv({ cls: "cp-item__body" });
+  body.dataset.face = face;
+  if (face === "back") body.setText(item.backContent || "Write on the back…");
+  else if ((item.type === "image" || item.type === "video") && (item.origin.filePath || item.sourceReferencePath)) body.createDiv({ cls: item.type === "video" ? "cp-video-placeholder" : "cp-image-placeholder", text: item.origin.filePath ?? item.sourceReferencePath! });
+  else if (item.type === "group") {
+    body.createDiv({ text: `${item.group?.nodes.length ?? 0} nodes · ${item.group?.edges.length ?? 0} edges` });
+  }
+  else body.setText((item.content ?? item.origin.filePath ?? item.sourceReferencePath ?? "No preview").slice(0, 240));
+  if (canvasPaths.length > 0) {
+    const links = card.createDiv({ cls: "cp-item__canvas-links", attr: { title: canvasPaths.join("\n") } });
+    const linkIcon = links.createSpan(); setIcon(linkIcon, "workflow");
+    const summaries = canvasPaths.map((path) => `${canvasName(path)} · ${canvasLinks.get(path)?.length ?? 0}개`);
+    links.createSpan({ text: summaries.slice(0, 2).join(" | ") + (summaries.length > 2 ? ` +${summaries.length - 2}` : "") });
+    links.setAttribute("title", canvasPaths.map((path) => `${canvasName(path)} · 링크 ${(canvasLinks.get(path) ?? []).map((_, index) => index + 1).join(", ")}`).join("\n"));
+    if (options.onLocate) {
+      links.addClass("is-clickable");
+      links.tabIndex = 0;
+      links.setAttribute("role", "button");
+      links.setAttribute("aria-label", "Locate linked item on Canvas");
+      const locate = (event: Event): void => { event.preventDefault(); event.stopPropagation(); options.onLocate?.(); };
+      links.addEventListener("click", locate);
+      links.addEventListener("dblclick", locate);
+      links.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") locate(event); });
+    }
+  }
+  const footer = card.createDiv({ cls: "cp-item__footer" });
+  footer.createSpan({ text: item.tags.map((tag) => `#${tag}`).join(" ") });
+  footer.createSpan({ text: new Date(item.modifiedAt).toLocaleDateString() });
+  if (item.caption) card.createDiv({ cls: "cp-item__caption", text: item.caption });
+  if (options.draggable) {
+    card.draggable = true;
+    card.addEventListener("dragstart", (event) => {
+      if (event.dataTransfer) {
+        const draggedIds = options.dragItemIds?.includes(item.id) ? options.dragItemIds : [item.id];
+        event.dataTransfer.clearData();
+        event.dataTransfer.setData("application/x-canvas-palette-item", item.id);
+        event.dataTransfer.setData("application/x-canvas-palette-items", JSON.stringify(draggedIds));
+        event.dataTransfer.setData("application/x-canvas-palette-type", item.type);
+        if (options.miniCollect) event.dataTransfer.setData("application/x-canvas-palette-mini-collect", "true");
+        event.dataTransfer.effectAllowed = "copyMove";
+        if (draggedIds.length > 1) {
+          const dragImage = document.body.createDiv({ cls: "cp-multi-drag-image" }); dragImage.createSpan({ text: item.displayTitle || "Selected items" }); dragImage.createEl("strong", { text: String(draggedIds.length) });
+          event.dataTransfer.setDragImage(dragImage, 20, 20); window.setTimeout(() => dragImage.remove(), 0);
+        } else event.dataTransfer.setDragImage(card, Math.max(0, Math.min(event.offsetX, card.clientWidth)), Math.max(0, Math.min(event.offsetY, card.clientHeight)));
+      }
+      card.addClass("is-dragging");
+    }, true);
+    card.addEventListener("dragend", () => card.removeClass("is-dragging"));
+  }
+  let clickTimer: number | null = null;
+  card.addEventListener("click", (event) => {
+    if (!options.onOpen) { options.onSelect(event); return; }
+    if (clickTimer !== null) window.clearTimeout(clickTimer);
+    clickTimer = window.setTimeout(() => { clickTimer = null; options.onSelect(event); }, 220);
+  });
+  card.addEventListener("dblclick", (event) => { if (clickTimer !== null) window.clearTimeout(clickTimer); clickTimer = null; event.preventDefault(); event.stopPropagation(); options.onOpen?.(); });
+  card.addEventListener("contextmenu", (event) => options.onContextMenu?.(event));
+  card.addEventListener("keydown", (event) => { if (event.key === "Enter") options.onOpen?.(); else if (event.key === " ") options.onSelect(event); });
+  return card;
+}
+
+function canvasName(path: string): string { return path.split("/").pop()?.replace(/\.canvas$/i, "") ?? path; }
+
+export function renderPreviewInCard(service: PreviewService, parent: HTMLElement, item: PaletteItem): void { void service.render(parent, item, true); }
+
+export function workspaceSelect(plugin: CanvasPalettePlugin, parent: HTMLElement, value: string | null, onChange: (id: string) => void): HTMLSelectElement {
+  const select = parent.createEl("select", { cls: "dropdown cp-workspace-select" });
+  const currentCanvas = plugin.currentCanvasPath();
+  const active = value ? plugin.store.data.workspaces[value] : undefined;
+  const current = Object.values(plugin.store.data.workspaces).filter((workspace) => workspace.kind === "canvas" && workspace.ownerCanvasPath === currentCanvas).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  if (active && !current.some((workspace) => workspace.id === active.id)) {
+    const group = select.createEl("optgroup", { attr: { label: "현재 선택" } });
+    const option = group.createEl("option", { text: plugin.workspaceDisplayName(active), value: active.id }); option.selected = true;
+  }
+  const group = select.createEl("optgroup", { attr: { label: currentCanvas ? "현재 Canvas Workspace" : "Canvas를 열어 선택" } });
+  for (const workspace of current) {
+    const option = group.createEl("option", { text: plugin.workspaceDisplayName(workspace), value: workspace.id });
+    option.selected = workspace.id === value;
+  }
+  select.addEventListener("change", () => onChange(select.value));
+  return select;
+}

@@ -1,0 +1,8 @@
+node_modules/
+work/
+outputs/
+.validation/
+*.log
+main.js
+styles.css
+.DS_Store

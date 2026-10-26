@@ -1,0 +1,9 @@
+{
+  "id": "canvas-mindmap",
+  "name": "Canvas Mindmap",
+  "version": "0.5.24",
+  "minAppVersion": "1.12.7",
+  "description": "Keyboard-driven Canvas creation, navigation, Waypoints, colors, media previews and settings backup.",
+  "author": "tlatndms2-droid",
+  "isDesktopOnly": true
+}

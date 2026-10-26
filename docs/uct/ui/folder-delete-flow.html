@@ -1,0 +1,113 @@
+<div id="uct-folder-delete-flow" aria-label="미니팔레트 폴더 삭제 동작 시안">
+  <style>
+    #uct-folder-delete-flow {
+      --uct-ink: #292723; --uct-muted: #746f68; --uct-line: #ded9d1;
+      --uct-wash: #f8f6f2; --uct-accent: #c9654b; --uct-accent-soft: #f8ebe6;
+      color: var(--uct-ink); font: 15px/1.55 system-ui, "Malgun Gothic", sans-serif;
+      max-width: 760px; margin: 0 auto;
+    }
+    #uct-folder-delete-flow * { box-sizing: border-box; }
+    #uct-folder-delete-flow h2 { margin: 0 0 4px; font-size: 1.35rem; line-height: 1.35; }
+    #uct-folder-delete-flow p { margin: 0; }
+    #uct-folder-delete-flow .sub { color: var(--uct-muted); margin-bottom: 16px; }
+    #uct-folder-delete-flow .example { border-top: 1px solid var(--uct-line); border-bottom: 1px solid var(--uct-line); padding: 12px 0; }
+    #uct-folder-delete-flow .tree-title { color: var(--uct-muted); font-size: .9rem; margin-bottom: 6px; }
+    #uct-folder-delete-flow .tree { list-style: none; margin: 0; padding: 0; }
+    #uct-folder-delete-flow .tree li { list-style: none; }
+    #uct-folder-delete-flow .tree-row { min-height: 32px; display: flex; align-items: center; gap: 8px; }
+    #uct-folder-delete-flow .tree ul { list-style: none; padding-left: 23px; margin: 0; }
+    #uct-folder-delete-flow .icon { width: 22px; text-align: center; color: var(--uct-accent); flex: 0 0 22px; }
+    #uct-folder-delete-flow .selected { background: var(--uct-accent-soft); border-radius: 7px; padding: 3px 8px; font-weight: 600; }
+    #uct-folder-delete-flow .dim { color: var(--uct-muted); }
+    #uct-folder-delete-flow fieldset { border: 0; margin: 15px 0 12px; padding: 0; }
+    #uct-folder-delete-flow legend { font-weight: 650; margin-bottom: 6px; }
+    #uct-folder-delete-flow .choice { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border: 1px solid var(--uct-line); border-radius: 8px; margin: 6px 0; cursor: pointer; }
+    #uct-folder-delete-flow .choice:has(input:checked) { border-color: var(--uct-accent); background: var(--uct-accent-soft); }
+    #uct-folder-delete-flow input { margin-top: 4px; accent-color: var(--uct-accent); }
+    #uct-folder-delete-flow .choice strong { display: block; }
+    #uct-folder-delete-flow .choice small { display: block; color: var(--uct-muted); margin-top: 2px; }
+    #uct-folder-delete-flow .result { padding: 12px; background: var(--uct-wash); border-radius: 9px; }
+    #uct-folder-delete-flow .result h3 { font-size: 1rem; margin: 0 0 6px; }
+    #uct-folder-delete-flow .status { margin-top: 8px; font-size: .9rem; color: var(--uct-muted); }
+    #uct-folder-delete-flow .badge { display: inline-block; color: #8e402e; background: var(--uct-accent-soft); padding: 2px 8px; border-radius: 20px; font-size: .82rem; margin-bottom: 6px; }
+    @media (max-width: 420px) {
+      #uct-folder-delete-flow { font-size: 14px; }
+      #uct-folder-delete-flow .example { padding: 9px 0; }
+      #uct-folder-delete-flow .tree ul { padding-left: 17px; }
+    }
+  </style>
+  <span class="badge">미니팔레트 · 하위 폴더 정리 방식</span>
+  <h2>“프로젝트 A” 삭제 → 안의 아이템은 미분류로</h2>
+  <p class="sub">아이템 이동은 확정됐어요. 하위 폴더 모양만 선택해 주세요.</p>
+
+  <section class="example" aria-label="삭제 전 폴더 구조">
+    <p class="tree-title">삭제 전 · 내 보관함</p>
+    <ul class="tree">
+      <li><div class="tree-row"><span class="icon" aria-hidden="true">▾</span><strong>내 보관함</strong></div>
+        <ul>
+          <li><div class="tree-row selected"><span class="icon" aria-hidden="true">▾</span>프로젝트 A <span class="dim">← 삭제 대상</span></div>
+            <ul>
+              <li><div class="tree-row"><span class="icon" aria-hidden="true">▤</span>회의 메모</div></li>
+              <li><div class="tree-row"><span class="icon" aria-hidden="true">▾</span>레퍼런스</div>
+                <ul><li><div class="tree-row"><span class="icon" aria-hidden="true">▧</span>설계 이미지</div></li></ul>
+              </li>
+            </ul>
+          </li>
+          <li><div class="tree-row"><span class="icon" aria-hidden="true">▸</span>개인 아이디어</div></li>
+          <li><div class="tree-row"><span class="icon" aria-hidden="true">▸</span>미분류</div></li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <fieldset>
+    <legend>삭제 후 하위 폴더는?</legend>
+    <label class="choice">
+      <input type="radio" name="uct-folder-delete-mode" value="preserve" checked>
+      <span><strong>하위 폴더를 미분류 안에서 유지 <span class="dim">(추천)</span></strong><small>회의 메모와 설계 이미지는 모두 미분류에 속하고, 레퍼런스 폴더 모양은 남습니다.</small></span>
+    </label>
+    <label class="choice">
+      <input type="radio" name="uct-folder-delete-mode" value="flatten">
+      <span><strong>하위 폴더 구조를 없애고 아이템만 모으기</strong><small>회의 메모와 설계 이미지가 미분류 바로 아래 나란히 놓입니다.</small></span>
+    </label>
+  </fieldset>
+
+  <section class="result" aria-live="polite" aria-atomic="true">
+    <h3 id="uct-folder-delete-result-title">삭제 후 · 미분류</h3>
+    <div id="uct-folder-delete-result-tree">
+      <ul class="tree">
+        <li><div class="tree-row"><span class="icon" aria-hidden="true">▾</span><strong>미분류</strong></div>
+          <ul>
+            <li><div class="tree-row"><span class="icon" aria-hidden="true">▤</span>회의 메모</div></li>
+            <li><div class="tree-row"><span class="icon" aria-hidden="true">▾</span>레퍼런스</div>
+              <ul><li><div class="tree-row"><span class="icon" aria-hidden="true">▧</span>설계 이미지</div></li></ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <p class="status" id="uct-folder-delete-status">프로젝트 A는 없어집니다. 내부 아이템은 미분류로 이동하고, 레퍼런스 하위 폴더 구조를 유지합니다.</p>
+  </section>
+</div>
+<script>
+(() => {
+  const root = document.getElementById("uct-folder-delete-flow");
+  if (!root) return;
+  const title = root.querySelector("#uct-folder-delete-result-title");
+  const tree = root.querySelector("#uct-folder-delete-result-tree");
+  const status = root.querySelector("#uct-folder-delete-status");
+  const preserved = "<ul class=\"tree\"><li><div class=\"tree-row\"><span class=\"icon\" aria-hidden=\"true\">▾</span><strong>미분류</strong></div><ul><li><div class=\"tree-row\"><span class=\"icon\" aria-hidden=\"true\">▤</span>회의 메모</div></li><li><div class=\"tree-row\"><span class=\"icon\" aria-hidden=\"true\">▾</span>레퍼런스</div><ul><li><div class=\"tree-row\"><span class=\"icon\" aria-hidden=\"true\">▧</span>설계 이미지</div></li></ul></li></ul></li></ul>";
+  const flattened = "<ul class=\"tree\"><li><div class=\"tree-row\"><span class=\"icon\" aria-hidden=\"true\">▾</span><strong>미분류</strong></div><ul><li><div class=\"tree-row\"><span class=\"icon\" aria-hidden=\"true\">▤</span>회의 메모</div></li><li><div class=\"tree-row\"><span class=\"icon\" aria-hidden=\"true\">▧</span>설계 이미지</div></li></ul></li></ul>";
+  root.querySelectorAll('input[name="uct-folder-delete-mode"]').forEach((input) => {
+    input.addEventListener("change", () => {
+      if (!input.checked) return;
+      const keepTree = input.value === "preserve";
+      title.textContent = keepTree ? "삭제 후 · 미분류" : "삭제 후 · 미분류 (폴더 구조 펼침)";
+      tree.innerHTML = keepTree ? preserved : flattened;
+      status.textContent = keepTree
+        ? "프로젝트 A는 없어집니다. 내부 아이템은 미분류로 이동하고, 레퍼런스 하위 폴더 구조를 유지합니다."
+        : "프로젝트 A와 레퍼런스 폴더는 없어집니다. 회의 메모와 설계 이미지는 미분류 바로 아래에 놓입니다.";
+    });
+  });
+})();
+</script>

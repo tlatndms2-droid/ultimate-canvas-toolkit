@@ -1,0 +1,1 @@
+{"id":"canvas-image-copy","name":"Canvas Image Copy","version":"0.1.0","minAppVersion":"1.12.7","description":"Canvas에서 선택한 이미지 파일들을 Windows 클립보드로 복사하거나 폴더에 저장합니다.","author":"suzakka","isDesktopOnly":true}

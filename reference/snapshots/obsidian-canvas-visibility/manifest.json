@@ -1,0 +1,9 @@
+{
+  "id": "canvas-visibility",
+  "name": "Canvas Visibility",
+  "version": "0.7.1",
+  "minAppVersion": "1.5.0",
+  "description": "Collapse Canvas cards and edit them in a movable, resizable Live Preview editor.",
+  "author": "Canvas Visibility contributors",
+  "isDesktopOnly": false
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "module": "mindmap",
+    "commit": "f8a707bfc3dbe0f8e5d4f23b16198bc3efa827ef",
+    "source": "obsidian advanced mindmap"
+  },
+  {
+    "module": "outliner",
+    "commit": "df744083bc39addaafd4ea55ae0fa77e9f626ed4",
+    "source": "obsidian canvas outliner"
+  },
+  {
+    "module": "portal",
+    "commit": "199bd978a348c3b290035b410d5c84981af25fc4",
+    "source": "canvas portal"
+  },
+  {
+    "module": "image-copy",
+    "commit": "83bf3d6199a18645e82be82a64db3e0d09447a47",
+    "source": "obsidian canvas image copy"
+  },
+  {
+    "module": "pdf",
+    "commit": "f2982a6fef74246df3bf8476a1ec2ed83dcdbd07",
+    "source": "obsidian canvas pdf viewcard"
+  },
+  {
+    "module": "palette",
+    "commit": "de8172f3fbdfe002abf0fcc9ac05eb375c226a24",
+    "source": "obsidian canvas pallete 플러그인"
+  },
+  {
+    "module": "visibility",
+    "commit": "fe3a3bd6178a968f8ba544ab3b467e92254c1fe6",
+    "source": "reference/snapshots/obsidian-canvas-visibility"
+  }
+]

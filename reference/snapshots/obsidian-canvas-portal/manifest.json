@@ -1,0 +1,9 @@
+{
+  "id": "canvas-portal",
+  "name": "Canvas Portal",
+  "version": "0.4.10",
+  "minAppVersion": "1.14.4",
+  "description": "Canvas 자료를 일반·Link 포탈로 정리하고 마지막 작업 위치를 복원합니다.",
+  "author": "tlatn",
+  "isDesktopOnly": true
+}

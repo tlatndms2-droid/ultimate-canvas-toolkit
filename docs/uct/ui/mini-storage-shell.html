@@ -1,0 +1,128 @@
+<div id="uct-mini-storage-shell">
+  <style>
+    #uct-mini-storage-shell { --ink:#282623;--muted:#7a746e;--line:#e8e4df;--paper:#fff;--soft:#faf9f7;--accent:#bd6248; color:var(--ink);font:14px/1.45 system-ui,'Malgun Gothic',sans-serif;max-width:980px;margin:auto; }
+    #uct-mini-storage-shell * { box-sizing:border-box; }
+    #uct-mini-storage-shell .window { border:1px solid var(--line);border-radius:10px;background:var(--paper);overflow:hidden; }
+    #uct-mini-storage-shell .titlebar { padding:9px 14px;border-bottom:1px solid var(--line);font-weight:600; }
+    #uct-mini-storage-shell .body { display:grid;grid-template-columns:210px minmax(260px,1fr);min-height:520px;transition:grid-template-columns .2s ease; }
+    #uct-mini-storage-shell .body.has-detail { grid-template-columns:190px minmax(270px,1fr) 285px; }
+    #uct-mini-storage-shell .body.collapsed { grid-template-columns:48px minmax(260px,1fr); }
+    #uct-mini-storage-shell .body.collapsed.has-detail { grid-template-columns:48px minmax(260px,1fr) 285px; }
+    #uct-mini-storage-shell .storage { border-right:1px solid var(--line);padding:13px 11px;display:flex;flex-direction:column;min-width:0; }
+    #uct-mini-storage-shell .storage-head,#uct-mini-storage-shell .row,#uct-mini-storage-shell .toolbar,#uct-mini-storage-shell .filters { display:flex;align-items:center;justify-content:space-between;gap:7px; }
+    #uct-mini-storage-shell h2 { font:24px/1.2 Georgia,'Malgun Gothic',serif;margin:2px 0 10px; }
+    #uct-mini-storage-shell h3 { margin:15px 4px 5px;font-size:12px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase; }
+    #uct-mini-storage-shell button { font:inherit;color:inherit;background:#fff;border:1px solid var(--line);border-radius:7px;padding:7px 9px; }
+    #uct-mini-storage-shell .row { width:100%;text-align:left;justify-content:flex-start;padding:7px 8px;border-color:transparent; }
+    #uct-mini-storage-shell .row.is-active { background:#f8ece7;color:#8e4c39; }
+    #uct-mini-storage-shell .count { color:var(--muted);margin-left:auto;font-size:12px; }
+    #uct-mini-storage-shell .indent { padding-left:24px; }
+    #uct-mini-storage-shell .spacer { flex:1; }
+    #uct-mini-storage-shell .main { min-width:0;padding:15px 18px; }
+    #uct-mini-storage-shell .toolbar { margin-bottom:12px; }
+    #uct-mini-storage-shell .toolbar h1 { font:36px/1.1 Georgia,'Malgun Gothic',serif;margin:0; }
+    #uct-mini-storage-shell .tools { display:flex;align-items:center;gap:7px;flex-wrap:wrap; }
+    #uct-mini-storage-shell input[type=search] { width:min(190px,36vw);padding:8px 10px;border:1px solid var(--line);border-radius:18px;font:inherit;background:#fff;color:var(--ink); }
+    #uct-mini-storage-shell .toggle { white-space:nowrap; }
+    #uct-mini-storage-shell .toggle[aria-pressed=true] { background:#f8ece7;color:#8e4c39; }
+    #uct-mini-storage-shell .items { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px; }
+    #uct-mini-storage-shell .items.list { display:block; }
+    #uct-mini-storage-shell .item { min-width:0;border-radius:8px;padding:8px;cursor:pointer; }
+    #uct-mini-storage-shell .item[aria-selected=true] { outline:2px solid #ca7258;outline-offset:1px; }
+    #uct-mini-storage-shell .items.list .item { display:grid;grid-template-columns:66px 1fr;gap:10px;align-items:center;border-bottom:1px solid var(--line); }
+    #uct-mini-storage-shell .thumb { height:105px;border-radius:6px;background:linear-gradient(140deg,#eee5da,#c9b19a 45%,#f6f2ed 46%,#d7d0c7); }
+    #uct-mini-storage-shell .items.list .thumb { height:48px; }
+    #uct-mini-storage-shell .item strong { display:block;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500; }
+    #uct-mini-storage-shell .meta { color:var(--muted);font-size:12px; }
+    #uct-mini-storage-shell .detail { min-width:0;border-left:1px solid var(--line);padding:14px;background:#fff; }
+    #uct-mini-storage-shell .detail[hidden] { display:none; }
+    #uct-mini-storage-shell .preview { aspect-ratio:4/3;border-radius:7px;background:linear-gradient(140deg,#ede5da,#b99c7f 48%,#f6f1eb 49%,#d6cec4);margin:12px 0; }
+    #uct-mini-storage-shell .detail h2 { font-size:19px; }
+    #uct-mini-storage-shell .field { border-top:1px solid var(--line);padding:9px 0; }
+    #uct-mini-storage-shell .field b { display:block;font-size:12px;color:var(--muted);font-weight:400;margin-bottom:3px; }
+    #uct-mini-storage-shell .status { padding:9px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px; }
+    #uct-mini-storage-shell .collapsed .storage-name,#uct-mini-storage-shell .collapsed .row-label,#uct-mini-storage-shell .collapsed .count,#uct-mini-storage-shell .collapsed h3,#uct-mini-storage-shell .collapsed .new-folder { display:none; }
+    #uct-mini-storage-shell .collapsed .storage { align-items:center;padding-inline:4px; }
+    #uct-mini-storage-shell .collapsed .row { justify-content:center;padding:8px 3px; }
+    #uct-mini-storage-shell [hidden] { display:none!important; }
+    @media(max-width:720px){#uct-mini-storage-shell .body,#uct-mini-storage-shell .body.has-detail,#uct-mini-storage-shell .body.collapsed,#uct-mini-storage-shell .body.collapsed.has-detail{grid-template-columns:48px minmax(0,1fr)}#uct-mini-storage-shell .items{grid-template-columns:repeat(2,minmax(0,1fr))}#uct-mini-storage-shell .detail{grid-column:2;border-left:0;border-top:1px solid var(--line)}}
+  </style>
+  <div class="window">
+    <div class="titlebar">UCT · Mini Palette</div>
+    <div class="body" data-layout>
+      <aside class="storage" aria-label="Storage folders and type views">
+        <div class="storage-head"><h2 class="storage-name">Storage</h2><button type="button" data-new-folder aria-label="새 폴더">＋</button></div>
+        <button class="row" type="button" data-view="Collect"><span>▣</span><span class="row-label">Collect</span><span class="count">8</span></button>
+        <h3>폴더</h3>
+        <button class="row is-active" type="button" data-view="아이디어"><span>▱</span><span class="row-label">아이디어</span><span class="count">24</span></button>
+        <button class="row indent" type="button" data-view="작업실 참고"><span>↳</span><span class="row-label">작업실 참고</span><span class="count">6</span></button>
+        <button class="row" type="button" data-view="프로젝트"><span>▱</span><span class="row-label">프로젝트</span><span class="count">12</span></button>
+        <h3>형식별 보기 · 모든 폴더</h3>
+        <button class="row" type="button" data-view="이미지"><span>▧</span><span class="row-label">이미지</span><span class="count">36</span></button>
+        <button class="row" type="button" data-view="텍스트"><span>≡</span><span class="row-label">텍스트</span><span class="count">9</span></button>
+        <button class="row" type="button" data-view="PDF"><span>▤</span><span class="row-label">PDF</span><span class="count">7</span></button>
+        <button class="row" type="button" data-view="마인드맵"><span>⌘</span><span class="row-label">마인드맵</span><span class="count">5</span></button>
+        <div class="spacer"></div>
+        <button class="row" type="button" data-backup><span>☁</span><span class="row-label">백업</span></button>
+      </aside>
+      <main class="main">
+        <div class="toolbar"><h1 data-heading>아이디어</h1><div class="tools"><input type="search" aria-label="현재 목록 검색" placeholder="자료 검색"><button type="button" class="toggle" data-mode="grid" aria-pressed="true">▦ 카드</button><button type="button" class="toggle" data-mode="list" aria-pressed="false">☷ 목록</button></div></div>
+        <div class="filters"><span class="meta" data-count>24개 자료</span><span class="meta">수정한 순서⌄</span><button type="button" data-collapse aria-pressed="false">Storage 접기</button></div>
+        <div class="items" data-items>
+          <button class="item" type="button" aria-selected="false" data-item="Collect · 임시 수집 자료" data-kind="이미지" data-folder=""><div class="thumb" style="background:linear-gradient(135deg,#d6e1e7,#8ca2ae 48%,#f2eee7 49%)"></div><strong>Collect · 임시 수집 자료</strong><span class="meta">이미지 · Storage로 옮기기 전</span></button>
+          <button class="item" type="button" aria-selected="false" data-item="햇살이 드는 작업 공간" data-kind="이미지" data-folder="아이디어"><div class="thumb"></div><strong>햇살이 드는 작업 공간</strong><span class="meta">이미지 · 라벨: 참고</span></button>
+          <button class="item" type="button" aria-selected="false" data-item="작업 아이디어 메모" data-kind="텍스트" data-folder="작업실 참고"><div class="thumb" style="background:linear-gradient(135deg,#fff,#efe9e1)"></div><strong>작업 아이디어 메모</strong><span class="meta">텍스트 · 캡션 있음</span></button>
+          <button class="item" type="button" aria-selected="false" data-item="제품 참고 이미지" data-kind="이미지" data-folder="프로젝트"><div class="thumb" style="background:linear-gradient(145deg,#dce4df,#94a697 52%,#ede8df 53%)"></div><strong>제품 참고 이미지</strong><span class="meta">이미지 · 오늘 수집</span></button>
+          <button class="item" type="button" aria-selected="false" data-item="디자인 안내서" data-kind="PDF" data-folder="아이디어"><div class="thumb" style="background:linear-gradient(90deg,#f7f7f5 50%,#d2d8dc 51%,#eee 100%)"></div><strong>디자인 안내서</strong><span class="meta">PDF · 라벨: 프로젝트</span></button>
+          <button class="item" type="button" aria-selected="false" data-item="흐름 정리" data-kind="마인드맵" data-folder="프로젝트"><div class="thumb" style="background:linear-gradient(145deg,#f7e7ca,#edc47b 48%,#e8eef4 49%)"></div><strong>흐름 정리</strong><span class="meta">마인드맵 · 5개 노드</span></button>
+          <button class="item" type="button" aria-selected="false" data-item="제품 레퍼런스" data-kind="이미지" data-folder="아이디어"><div class="thumb" style="background:linear-gradient(130deg,#ddd2c3,#917f6c 55%,#eee5d8 56%)"></div><strong>제품 레퍼런스</strong><span class="meta">이미지 · 캡션 있음</span></button>
+        </div>
+      </main>
+      <aside class="detail" data-detail hidden aria-label="선택 자료 상세">
+        <button type="button" data-close aria-label="상세 닫기">×</button>
+        <div class="preview"></div>
+        <h2 data-detail-title>선택 자료</h2>
+        <div class="field"><b>수집 위치</b><span>작업실 참고 · Canvas A</span></div>
+        <div class="field"><b>라벨</b><span>참고</span></div>
+        <div class="field"><b>캡션</b><span>다음 작업 공간 배치에 참고할 자료</span></div>
+      </aside>
+    </div>
+    <div class="status" role="status" aria-live="polite">폴더와 형식별 보기는 별도 필터입니다. 자료 선택 시 오른쪽 상세가 열립니다.</div>
+  </div>
+  <script>
+  (()=>{
+    const root=document.getElementById('uct-mini-storage-shell'),layout=root.querySelector('[data-layout]'),items=root.querySelector('[data-items]'),detail=root.querySelector('[data-detail]');
+    const heading=root.querySelector('[data-heading]'),count=root.querySelector('[data-count]'),status=root.querySelector('.status');let collapsed=false,currentView='아이디어';
+    function filter(){
+      let shown=0;const query=root.querySelector('input[type=search]').value.trim().toLocaleLowerCase();
+      for(const card of root.querySelectorAll('[data-item]')){
+        const inView=currentView==='Collect'?card.dataset.folder==='':(['이미지','텍스트','PDF','마인드맵'].includes(currentView)?card.dataset.kind===currentView:card.dataset.folder===currentView);
+        const matches=inView&&(!query||card.textContent.toLocaleLowerCase().includes(query));
+        card.hidden=!matches;if(matches)shown++;
+      }
+      count.textContent=query?`${shown}개 검색 결과`:`${shown}개 자료`;
+    }
+    root.querySelector('input[type=search]').addEventListener('input',filter);
+    root.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>{
+      currentView=button.dataset.view;
+      root.querySelectorAll('[data-view]').forEach(row=>row.classList.toggle('is-active',row===button));
+      heading.textContent=button.dataset.view;detail.hidden=true;layout.classList.remove('has-detail');
+      filter();
+      status.textContent=button.dataset.view==='Collect'?'아직 Storage 폴더로 옮기지 않은 수집 자료를 보여줍니다.':(['이미지','텍스트','PDF','마인드맵'].includes(button.dataset.view)?`${button.dataset.view} 자료를 모든 폴더와 Collect에서 모아 보여줍니다.`:`${button.dataset.view} 폴더 안의 자료를 보여줍니다.`);
+    }));
+    root.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>{
+      const list=button.dataset.mode==='list';items.classList.toggle('list',list);
+      root.querySelectorAll('[data-mode]').forEach(mode=>mode.setAttribute('aria-pressed',String(mode===button)));
+    }));
+    root.querySelectorAll('[data-item]').forEach(button=>button.addEventListener('click',()=>{
+      root.querySelectorAll('[data-item]').forEach(item=>item.setAttribute('aria-selected',String(item===button)));
+      root.querySelector('[data-detail-title]').textContent=button.dataset.item;detail.hidden=false;layout.classList.add('has-detail');
+    }));
+    root.querySelector('[data-close]').addEventListener('click',()=>{detail.hidden=true;layout.classList.remove('has-detail');root.querySelectorAll('[data-item]').forEach(item=>item.setAttribute('aria-selected','false'));});
+    root.querySelector('[data-collapse]').addEventListener('click',event=>{collapsed=!collapsed;layout.classList.toggle('collapsed',collapsed);event.currentTarget.setAttribute('aria-pressed',String(collapsed));event.currentTarget.textContent=collapsed?'Storage 펼치기':'Storage 접기';});
+    filter();
+    root.querySelector('[data-new-folder]').addEventListener('click',()=>{status.textContent='Storage 폴더를 추가하는 위치입니다. 기존 하위 폴더 구조도 보존합니다.';});
+    root.querySelector('[data-backup]').addEventListener('click',()=>{status.textContent='수동 백업 파일을 만들거나 ZIP에서 별도 복구 폴더로 복구합니다.';});
+  })();
+  </script>
+</div>
