@@ -118,9 +118,8 @@ export class CanvasMetadataController {
       const header = layer.createDiv({ cls: "cp-canvas-metadata__header" });
       const label = header.createDiv({ cls: "cp-canvas-metadata__label", text: state.label });
       if (state.labelColor) label.style.setProperty("--cp-label-color", state.labelColor);
-      this.makeInlineEditable(label, "Edit label", state.label, (value) => {
-        this.saveMetadata(canvasPath, nodeId, { label: value });
-      });
+      label.addEventListener("pointerdown",event=>event.stopPropagation());
+      label.addEventListener("dblclick",event=>{event.preventDefault();event.stopPropagation();(this.plugin as any).uctEditLabel?.(canvasPath,nodeId);});
     }
     if (state.tags.length > 0 || state.label || state.caption) {
       const footer = layer.createDiv({ cls: "cp-canvas-metadata__footer" });
@@ -142,9 +141,8 @@ export class CanvasMetadataController {
     if (state.caption) {
       const caption = layer.createDiv({ cls: "cp-canvas-metadata__caption", text: state.caption });
       caption.style.setProperty("--cp-caption-font-size", `${this.plugin.store.data.settings.canvasCaptionFontSize}px`);
-      this.makeInlineEditable(caption, "Edit caption", state.caption, (value) => {
-        this.saveMetadata(canvasPath, nodeId, { caption: value });
-      });
+      caption.addEventListener("pointerdown",event=>event.stopPropagation());
+      caption.addEventListener("dblclick",event=>{event.preventDefault();event.stopPropagation();(this.plugin as any).uctEditCaption?.(canvasPath,nodeId);});
     }
     this.nodesByElement.set(nodeEl, node);
     this.observedNodes.set(nodeEl, node);

@@ -1,6 +1,6 @@
 export type StoredItem = Record<string, any> & {id:string;displayTitle:string;folderId:string|null;origin:Record<string,any>;createdAt:number;modifiedAt:number};
 export interface LibraryFolder {id:string;name:string;parentId:string|null;}
-export interface LibraryData {version:1;migrated:boolean;items:Record<string,StoredItem>;folders:LibraryFolder[];ui:{open:boolean;left:boolean;mode:'grid'|'list';sort:string;width:number;height:number;x:number|null;y:number|null};}
+export interface LibraryData {version:1;migrated:boolean;items:Record<string,StoredItem>;folders:LibraryFolder[];ui:{collapsedFolders?:string[];open:boolean;left:boolean;mode:'grid'|'list';sort:string;width:number;height:number;x:number|null;y:number|null};}
 export const uid=()=>crypto.randomUUID().replaceAll('-','');
 export const emptyLibrary=():LibraryData=>({version:1,migrated:false,items:{},folders:[{id:'unclassified',name:'미분류',parentId:null}],ui:{open:false,left:true,mode:'grid',sort:'modified-desc',width:1060,height:660,x:null,y:null}});
 export function validateLibrary(value:any):asserts value is LibraryData {

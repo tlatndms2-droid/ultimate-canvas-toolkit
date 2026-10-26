@@ -5,4 +5,6 @@ outputs/
 *.log
 main.js
 styles.css
+!src/styles.css
+!vendor/*/styles.css
 .DS_Store

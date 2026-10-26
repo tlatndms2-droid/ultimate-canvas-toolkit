@@ -1,0 +1,77 @@
+{
+  "style": "Create ONE polished Korean UI/UX explanatory infographic, landscape 1600x1000 or similar wide high resolution. It is a proposed Obsidian Ultimate Canvas Toolkit UI revision, not a screenshot of implemented software. Flat crisp realistic desktop UI mockups, white surfaces, thin warm-gray borders, restrained purple selected states, charcoal Korean sans-serif body text, dark serif headings ONLY for Mini Storage/Collect when shown. Large readable Korean typography; no decorative people, mascots, fake code, gradients, watermarks, excessive tiny prose. Consistent header small brand \"ULTIMATE CANVAS TOOLKIT\", large feature title and numbered section. Bottom discreet \"수정 시안 · 구현 전\". Show concrete initial state, exact action, proposed result using actual UI fragments, arrows and short annotations, clear reading order. Accent violet for action/result, muted red for existing problem only. Keep unaffected controls visually neutral. All explanatory text in Korean except original product names and key labels. Render exact key combinations accurately. Every panel must be fully within image boundaries, generous margins. Do not invent features, extra confirmations, synchronization or data deletion beyond specification. This is a NEW infographic, not editing an existing bitmap.",
+  "items": [
+    {
+      "n": 1,
+      "slug": "portal-icon",
+      "title": "포탈 전용 아이콘",
+      "spec": "Title \"01 · 포탈을 아이콘으로 구분\". Main close-up Outliner list before and proposed after. BEFORE rows 작업공간, Linked, 새 포탈 all ordinary document-outline icons, label \"현재 · 파일과 포탈이 같은 아이콘\". AFTER use distinct clean purple doorway with arrow entering (portal) icon at left of 작업공간 and 새 포탈; Linked use doorway + tiny chain badge. A normal Markdown row 회의 메모 remains ordinary document icon. Legend three symbols \"일반 카드\", \"포탈\", \"링크 포탈\". One lower action strip: \"아이콘은 종류 표시\" → row \"새 포탈\" selected → \"기존 진입 동작 유지\". This does not add a portal creation button or change interaction. Emphasize only iconography differentiation. Show enlarged line icons with easily visible details."
+    },
+    {
+      "n": 2,
+      "slug": "label-inline",
+      "title": "라벨 바로 생성·수정",
+      "spec": "Title \"02 · 라벨은 카드에서 바로 생성·수정\". Three sequential states with same text card \"프로젝트 아이디어\". Panel1 selected card and keyboard keycaps \"Alt + L\", no modal: caption \"단축키를 누르면\". Panel2 top-right card pill inline input \"아이디어\" with caret and name being typed, caption \"라벨을 카드에 바로 생성\". Panel3 double-click purple pill \"아이디어\", compact anchored inline edit directly next to label: name field \"아이디어\", a row of seven small color swatches, violet selected switching to green, resulting green label on SAME card. Caption \"더블클릭으로 이름·색상 수정\". Small lower before fragment gray modal titled \"Palette metadata\" with Label / Caption crossed out in muted red, paired with small selected card toolbar old tag icon crossed out. Labels \"통합 입력창 제거\", \"metadata 툴바 버튼 제거\". Color editing is a small label-anchored control, never a large combined Label/Caption modal. Caption editing stays separate; do not depict caption input here."
+    },
+    {
+      "n": 3,
+      "slug": "caption-spacing",
+      "title": "캡션 버튼·간격",
+      "spec": "Title \"03 · 캡션은 단순한 +와 충분한 여백\". Large split close-up same white Canvas text card \"회의 메모\". BEFORE card bottom edge with a circular + touching edge, caption \"노트다.\" almost touching, muted red bracket \"너무 붙은 간격\". AFTER card, clear vertical gap, standalone simple plus glyph \"+\" with NO circle/pill/background/frame centered below card, only visible while hover near below card. Hover pointer near plus. Below, demonstrate click \"+\" (or keycap \"Alt + C\")→ single-line inline caption input beneath card separated by clear space, containing \"회의에서 정한 내용\", then completed caption as plain centered text below card. Three visually coherent after states to show hover → input → saved. Annotations \"동그란 버튼 제거\", \"카드 아래 여백 확보\", \"Enter 저장 · Esc 취소\". Do not specify exact pixels as already agreed numbers; show visually comfortable spacing. Avoid input covering card or overlapping its caption."
+    },
+    {
+      "n": 4,
+      "slug": "remove-waypoints",
+      "title": "Waypoint 제거",
+      "spec": "Title \"04 · Waypoint 기능 전체 제거\". Show BEFORE a simple Canvas card with numbered badge \"1\", floating window \"Waypoints\" listing 1 회의 메모 / 2 참고 이미지, with Alt+W and Ctrl+숫자패드 key fragments; muted red remove labels. AFTER spacious same Canvas cards and connecting edge, normal label \"아이디어\" and caption remain, NO numbered waypoint badges or manager window. Beside after render a clean settings fragment sections \"마인드맵\", \"카드 생성·연결\", \"색상\", with no Waypoint settings. Bottom 4 crossed-out outlined compact elements: \"번호 배지\", \"위치 등록·이동\", \"관리창\", \"관련 단축키·설정\". Closing short note \"카드 생성·연결·탐색은 유지\". Make clear removed ONLY Waypoint, do not depict deleting Canvas cards, Portal IDs, Outliner presentation sequence numbers or user files."
+    },
+    {
+      "n": 5,
+      "slug": "remote-commands",
+      "title": "Remote 조작을 명령으로",
+      "spec": "Title \"05 · Remote는 목록 중심, 조작은 명령으로\". BEFORE floating \"Remote Outliner\" window tabs Outliner Space / Remote PT; below top crowded rows buttons Presentation OFF, PT Vision OFF, 이전, 다음, 선택 Item 추가, PT 그룹만 선택 OFF, 드래그 영역, 현재 화면 영역, List, Map. Surround that toolbar block in muted red \"상단 조작 버튼 제거\". AFTER clean same floating panel title Remote Outliner, tabs retained, search \"Presentation 검색\", list numbered \"1 · 발표 그룹\", \"2 · 참고 자료\", generous content area; bottom collapsed \"표시 설정\" preserved (NOT removed). RIGHT show Obsidian \"설정 → 단축키\" table with named commands \"발표 켜기/끄기\", \"PT Vision 켜기/끄기\", \"발표 이전\", \"발표 다음\", \"선택 항목을 발표에 추가\", \"PT 그룹만 선택\", \"드래그 영역 만들기\", \"현재 화면 영역 만들기\", \"List / Map 전환\". Each row has plus small key assignment control and text \"직접 지정\", NOT invented fixed key bindings. Connect former top toolbar to table arrow labeled \"기능은 유지 · 각각 단축키 지정\". No deletion of all controls in settings or loss of actual presentation functions."
+    },
+    {
+      "n": 6,
+      "slug": "item-types",
+      "title": "Mini 형식 아이콘·분류",
+      "spec": "Title \"06 · 썸네일 옆에 정확한 형식 아이콘\". A realistic white Mini Palette LIST excerpt, readable rows with columns \"자료\", \"형식\". Each row retains small true-looking thumbnail at left, title, and distinctive line icon plus type text: \"회의 메모\" rectangle-card icon \"카드\"; \"기획안.md\" Markdown M/document icon \"Markdown\"; \"참고 사진.png\" landscape icon \"이미지\"; \"발표자료.pdf\" PDF page icon \"PDF\"; \"연결된 아이디어\" connected-nodes icon \"묶음\"; \"작업공간\" doorway icon \"포탈\"; \"참고 Canvas\" doorway+chain icon \"링크 포탈\". Show same selected \"기획안.md\" in right inspector field \"유형 · Markdown\" and thumbnail preview. Lower two mini red→purple mapping notes \"텍스트 → 카드\", \".md 파일 → Markdown\". Annotation \"썸네일은 유지하고 아이콘으로 종류를 즉시 구분\", \"목록·카드·상세의 유형 표시 통일\". Group/bundle is not automatically declared a true mindmap semantic classification. Don't fake source-file rename changing title."
+    },
+    {
+      "n": 7,
+      "slug": "large-previews",
+      "title": "더블클릭 큰 미리보기",
+      "spec": "Title \"07 · 모든 자료는 더블클릭으로 큰 미리보기\". Top narrow Mini gallery contains PDF \"발표자료\", group \"회의 묶음\", image \"참고 사진\", Markdown \"기획안\". Show pointer double-click visual on PDF and central large floating PDF preview title \"발표자료.pdf\" with visible toolbar page \"1 / 12\", zoom, a real plausible document page filling view. Separate smaller right/lower preview examples: bundle preview whole 4-card diagram and connecting lines, image fit-to-frame, Markdown rendered heading and paragraphs. Do not show them as all opening simultaneously; label these as \"형식에 맞게 열림\" variants connected individually from same gallery. Explicit bottom flow \"한 번 클릭 → 오른쪽 상세\", \"더블클릭 → 형식별 큰 미리보기\", \"Esc → 미리보기 닫기\". Important: do not doubleclick to open source editor. Existing preview UI reused. Show actual usable preview designs not only four vague file symbols. No video autoplay invention."
+    },
+    {
+      "n": 8,
+      "slug": "rename-items",
+      "title": "Mini 이름 변경",
+      "spec": "Title \"08 · 카드·파일·잘라낸 묶음 모두 이름 변경\". Three-step concrete UI flow with consistent selected bundle. BEFORE list row \"잘라낸 묶음\", inspector heading \"잘라낸 묶음\". ACTION right-click row compact menu with \"이름 변경\" highlighted; arrow to small rename input (existing prompt reused) title \"자료 이름 변경\", field \"프로젝트 아이디어\", buttons 취소 / 저장. AFTER same bundle thumbnail and unchanged contents, title \"프로젝트 아이디어\" in list and right inspector. Under result a restart icon and note \"다시 열어도 변경한 이름 유지\". Small second example \"thisis node → 회의 메모\". Notes \"목록·카드·상세에 같은 이름\", \"팔레트 표시 이름 변경 · 원본 파일명 유지\". No direct inline editing invented as required; keep existing right-click name-change flow as baseline. Do not rename actual file or change bundle contents."
+    },
+    {
+      "n": 9,
+      "slug": "bundle-preview",
+      "title": "묶음 미리보기 정상화",
+      "spec": "Title \"09 · 묶음 전체를 비율에 맞춰 미리보기\". LEFT before inspector preview narrow card, Korean text wrapping one character per line, big orange informational notice mixed into snapshot, muted red callout \"텍스트 찌그러짐·안내 문구 혼입\". RIGHT much larger proposed inspector preview rectangular frame containing actual Canvas miniature: white outer group titled \"회의 묶음\", text card \"회의 메모\", PDF thumbnail card \"자료.pdf\", another text card \"다음 할 일\", thin arrows connecting cards, all fit within frame with proper aspect ratio and comfortable whitespace. No helper notices or app toasts included inside snapshot. Add magnified inset of a normal horizontal word on text card, purple callout \"원래 카드 비율·상대 위치·연결 보존\". Bottom same scene shown inside small list thumbnail and large inspector preview, both fitted, label \"작은 썸네일과 큰 미리보기 모두 같은 원칙\". Explain \"묶음 전체를 화면에 맞춰 축소\", NOT internally rearranging or resizing stored card graph. Be precise: snapshot content only, not current app UI screenshot."
+    },
+    {
+      "n": 10,
+      "slug": "storage-tree",
+      "title": "Storage·폴더 트리 토글",
+      "spec": "Title \"10 · Storage 전체와 폴더 트리를 따로 접기\". Two clearly separate demonstrations. TOP entire Mini window: expanded left sidebar heading Storage with pane-collapse icon at right, Collect, folder tree and type filters. Click collapse icon → next Mini state left sidebar gone, main Collect extends left, small \"Storage 펼치기\" pane icon at upper left remains visible. Annotation \"Storage 전체 접기·펼치기\". BOTTOM close-up folder tree under heading \"폴더\" with \"모두 접기 / 모두 펼치기\" compact controls. Expanded tree chevrons BEFORE \"▾ 프로젝트\" containing \"▾ 자료\" containing \"참고 이미지\", and \"▾ 미분류\"; click collapse all → AFTER \"▸ 프로젝트\" and \"▸ 미분류\"; Collect and \"형식별 보기\" remain and contents aren't deleted. Show per-folder chevron toggles too. Caption \"개별 폴더도 화살표로 접기·펼치기\", \"접어도 자료·폴더 구조는 그대로\". Do not move items or alter deletion behavior."
+    },
+    {
+      "n": 11,
+      "slug": "resize-borders",
+      "title": "Mini 모든 가장자리 리사이즈",
+      "spec": "Title \"11 · 어느 테두리를 잡아도 창 크기 조절\". Large centered white Mini mockup with title UCT · Mini Palette, sidebar Storage / Collect, gallery grid, conditional inspector selected. Surround outer rectangle with 8 discreet purple resize hit zones: four corners diagonal double arrows, middle left/right horizontal double arrows, top/bottom vertical double arrows. These are explanatory overlays, not permanently huge production buttons. Draw mouse cursor grabbing LEFT EDGE with initial rectangle in gray dashed outline then new wider left boundary purple; right edge remains anchored. Second small example dragging TOP RIGHT corner outward changes both width/height. Labels \"좌우 테두리 → 너비\", \"위아래 테두리 → 높이\", \"네 모서리 → 너비·높이\", \"제목줄 드래그 → 창 이동\". Show actual UI content reflow grid to more columns, intact sidebar/inspector, no stretched typography. Footer \"조절한 창 크기·위치는 다시 열어도 유지\". Do not invent full-screen/minimize controls."
+    },
+    {
+      "n": 12,
+      "slug": "label-search",
+      "title": "Canvas Search 라벨 검색",
+      "spec": "Title \"12 · Canvas Search에 라벨 검색을 명확히 표시\". Main proposed floating Canvas Search window white, search input value \"아이디어\"; file-type filters clearly labelled \"자료 형식\" with chips 전체, 카드, Markdown, 이미지, PDF, 그룹, 포탈; separate second row labelled \"검색 대상\" with chips \"내용\", \"라벨\" where 라벨 purple selected, 내용 unselected. Search result row title \"프로젝트 메모\", matched purple label pill \"아이디어\", small text \"라벨 일치\". A second result \"참고 사진\" with label \"아이디어\" also shown, proving type filters remain distinct from label search. Under window mini flow: choose \"라벨\" → type \"아이디어\" → \"해당 라벨이 있는 항목 표시\". Side small Canvas space schematic root → 작업공간 Portal, highlight active current space only and note \"현재 Canvas·포탈 공간에서 검색\". Preserve existing all/text/heading/line functions as a small dropdown \"본문 검색 방식\" disabled while label-only, avoid claiming implemented user-approved change beyond this proposed UI. Short note \"라벨은 파일 형식이 아닌 검색 대상\". No need generic alerts or unrelated search features."
+    }
+  ]
+}

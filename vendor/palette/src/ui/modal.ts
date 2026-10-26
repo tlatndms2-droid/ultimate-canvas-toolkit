@@ -34,15 +34,11 @@ export class TextPromptModal extends Modal {
   private value: string;
   constructor(app: App, private readonly title: string, initial: string, private readonly onSubmit: (value: string) => unknown | Promise<unknown>, private readonly placeholder = "") { super(app); this.value = initial; }
   onOpen(): void {
-    this.contentEl.createEl("h2", { text: this.title });
-    new Setting(this.contentEl).addText((text) => text.setValue(this.value).setPlaceholder(this.placeholder).onChange((value) => { this.value = value; }));
-    new Setting(this.contentEl).addButton((button) => button.setButtonText("Save").setCta().onClick(async () => {
-      const value = this.value.trim();
-      if (!value) return;
-      button.setDisabled(true);
-      try { if (await this.onSubmit(value) !== false) this.close(); }
-      finally { button.setDisabled(false); }
-    }));
+    this.contentEl.createEl('h2',{text:this.title});let busy=false;
+    const input=this.contentEl.createEl('input',{value:this.value,attr:{'aria-label':this.title,placeholder:this.placeholder}});
+    const submit=async()=>{if(busy||!input.value.trim())return;busy=true;try{if(await this.onSubmit(input.value.trim())!==false)this.close();}finally{busy=false;}};
+    input.onkeydown=e=>{e.stopPropagation();if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();void submit();}if(e.key==='Escape'){e.preventDefault();this.close();}};
+    const actions=this.contentEl.createDiv({cls:'cp-modal-actions'});actions.createEl('button',{text:'취소'}).onclick=()=>this.close();actions.createEl('button',{text:'저장',cls:'mod-cta'}).onclick=()=>void submit();input.focus();input.select();
   }
   onClose(): void { this.contentEl.empty(); }
 }

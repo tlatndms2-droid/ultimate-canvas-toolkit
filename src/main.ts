@@ -2,6 +2,7 @@ import {Plugin,PluginSettingTab,Setting,TFile,TFolder,Notice,normalizePath} from
 import {promises as fs} from 'node:fs';
 import {join} from 'node:path';
 import {emptyLibrary,migratePalette,removeSource,renameSource,validateLibrary,type LibraryData} from './library';
+import {MetadataEditor} from './metadata-editor';
 import {UctMini} from './mini';
 import {collectSelection} from './snapshot';
 import {MiniPlacement} from './placement';
@@ -15,7 +16,7 @@ const ImageCopy=require('../vendor/image-copy/src/main').default;
 const {MetadataEditorModal}=require('../vendor/palette/src/ui/modal');
 
 export default class UctPlugin extends Plugin {
-  modules:Record<string,any>={};tabs:{name:string;tab:any}[]=[];library:LibraryData=emptyLibrary();mini!:UctMini;placement!:MiniPlacement;private queues=new Map<string,Promise<void>>();private stopped=false;private lastSpace='';private legacyPalette:any;
+  previewWindows=new Set<{close:()=>void}>();modules:Record<string,any>={};tabs:{name:string;tab:any}[]=[];library:LibraryData=emptyLibrary();metadataEditor!:MetadataEditor;mini!:UctMini;placement!:MiniPlacement;private queues=new Map<string,Promise<void>>();private stopped=false;private lastSpace='';private legacyPalette:any;
   get palette():any{return this.modules.palette;}
   get portal():any{return this.modules.portal;}
   get basePath():string{return (this.app.vault.adapter as any).getBasePath();}
@@ -30,7 +31,7 @@ export default class UctPlugin extends Plugin {
   metadata(path:string,id:string):any {const session=this.session();return this.palette?.store?.data.canvasNodeMetadata[this.spaceKey(path)]?.[id]??(session?.v.file?.path===path?session.root.uctNodeMetadata?.[session.current??'root']?.[id]:undefined);}
   async onload(){
     const persisted=await this.readJSON(this.rootDir+'/library.json');if(persisted){validateLibrary(persisted);this.library={...emptyLibrary(),...persisted,ui:{...emptyLibrary().ui,...persisted.ui}};}
-    this.mini=new UctMini(this);this.placement=new MiniPlacement(this);
+    this.metadataEditor=new MetadataEditor(this);this.mini=new UctMini(this);this.placement=new MiniPlacement(this);
     // Root capture handlers claim only their node types. Original Portal,
     // Mindmap media and PDF handlers retain their own protected scopes.
     this.registerDomEvent(window,'keydown',(e:KeyboardEvent)=>this.key(e),true);
@@ -59,6 +60,10 @@ export default class UctPlugin extends Plugin {
     // Mini snapshots never participate in the old source-to-Palette sync graph.
     palette.store.linkedCanvasNodes=()=>[];
     palette.store.addPending=(item:any)=>{item.folderId=null;item.tags=[];this.library.items[item.id]=item;void this.saveLibrary();};
+    this.modules.outliner.uctPortalKind=(id:string)=>this.session()?.root?.canvasPortal?.portals?.[id]?.type;
+    palette.uctEditLabel=(path:string,id:string)=>{const view=this.app.workspace.getLeavesOfType('canvas').map(l=>l.view as any).find(v=>v.file?.path===path&&v.canvas.nodes.has(id));if(view)this.metadataEditor.label(view,view.canvas.nodes.get(id),true);};
+    palette.uctEditCaption=(path:string,id:string)=>{const view=this.app.workspace.getLeavesOfType('canvas').map(l=>l.view as any).find(v=>v.file?.path===path&&v.canvas.nodes.has(id));if(view)this.editCaption(id,view);};
+    palette.editCanvasNodesMetadata=(nodes:any[])=>{const view=this.canvasView();if(nodes[0])this.metadataEditor.label(view,nodes[0]);};
     this.enrichOutliner();
     this.addSettingTab(new UctSettings(this.app,this));
     this.addCommand({id:'mini-toggle',name:'Mini Palette 열기/닫기',callback:()=>this.mini.toggle()});
@@ -83,17 +88,18 @@ export default class UctPlugin extends Plugin {
   spaceChanged(){if(this.stopped)return;const key=this.spaceKey();if(key!==this.lastSpace){this.lastSpace=key;this.placement?.cancel();const out=this.modules.outliner;if(out){out.lastDoc='';out.lastSelection='';void out.refresh();}}this.palette?.canvasMetadata.refreshSoon();this.addCaptionButtons();}
   async collect(cut:boolean){try{await collectSelection(this,cut);this.mini.open();}catch(error){console.error('UCT collect',error);new Notice(error instanceof Error?error.message:String(error));}}
   canMetadata(){const view=this.canvasView(),node=view?.canvas?.selection?.size===1?[...view.canvas.selection][0] as any:null;return !!node&&!view.canvas.readonly&&!node.isEditing&&node.getData().canvasPortalRef?.role!=='exit'&&!document.activeElement?.closest('input,textarea,[contenteditable=true],.modal');}
-  editLabel(){if(!this.canMetadata())return;const view=this.canvasView(),nodes=[...view.canvas.selection];this.palette.editCanvasNodesMetadata(nodes);}
+  editLabel(){if(!this.canMetadata())return;const view=this.canvasView(),nodes=[...view.canvas.selection];this.metadataEditor.label(view,nodes[0]);}
   editCaption(id?:string,targetView?:any){const view=targetView??this.canvasView(),space=this.spaceKey(view?.file?.path,view),node=id?view?.canvas?.nodes.get(id):[...(view?.canvas?.selection??[])][0] as any;if(!node||view.canvas.readonly)return;const old=this.metadata(view.file.path,node.id)??{label:'',caption:'',tags:[]};const existing=node.nodeEl.querySelector('.uct-caption-input');if(existing){existing.focus();return;}const input=node.nodeEl.createEl('input',{cls:'uct-caption-input',value:old.caption??'',attr:{'aria-label':'캡션 입력',placeholder:'카드 아래 캡션'}});let done=false;const finish=(save:boolean)=>{if(done)return;done=true;if(save){this.palette.store.setMetadataRecord(space,node.id,{...old,tags:[],caption:input.value.trim()},Date.now());this.palette.store.changed();void this.modules.outliner?.refresh();}input.remove();view.canvas.wrapperEl.focus();};input.addEventListener('keydown',(e:KeyboardEvent)=>{e.stopPropagation();if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();finish(true);}if(e.key==='Escape'){e.preventDefault();finish(false);}});input.addEventListener('pointerdown',(e:Event)=>e.stopPropagation());input.addEventListener('blur',()=>finish(true));input.focus();}
   private captionQueued=false;
   scheduleCaptionButtons(){if(this.captionQueued)return;this.captionQueued=true;requestAnimationFrame(()=>{this.captionQueued=false;this.addCaptionButtons();});}
-  addCaptionButtons(){if(this.stopped)return;for(const leaf of this.app.workspace.getLeavesOfType('canvas')){const view=leaf.view as any;for(const node of view.canvas?.nodes?.values()??[]){if(node.nodeEl.querySelector(':scope > .uct-caption-add')||node.getData().canvasPortalRef?.role==='exit')continue;const button=node.nodeEl.createEl('button',{cls:'uct-caption-add',text:'＋',attr:{'aria-label':'카드 아래 캡션 추가'}});button.addEventListener('pointerdown',(e:PointerEvent)=>{e.preventDefault();e.stopPropagation();});button.addEventListener('click',(e:MouseEvent)=>{e.stopPropagation();this.editCaption(node.id,view);});}}}
+  addCaptionButtons(){if(this.stopped)return;for(const leaf of this.app.workspace.getLeavesOfType('canvas')){const view=leaf.view as any;for(const node of view.canvas?.nodes?.values()??[]){const existing=node.nodeEl.querySelector(':scope > .uct-caption-add');if(existing)(existing as HTMLElement).hidden=!!this.metadata(view.file.path,node.id)?.caption;
+if(existing||node.getData().canvasPortalRef?.role==='exit')continue;const button=node.nodeEl.createEl('button',{cls:'uct-caption-add',text:'+',attr:{'aria-label':'카드 아래 캡션 추가'}});button.hidden=!!this.metadata(view.file.path,node.id)?.caption;button.addEventListener('pointerdown',(e:PointerEvent)=>{e.preventDefault();e.stopPropagation();});button.addEventListener('click',(e:MouseEvent)=>{e.stopPropagation();this.editCaption(node.id,view);});}}}
   private key(event:KeyboardEvent){if(event.isComposing||event.repeat||event.target instanceof HTMLElement&&event.target.closest('input,textarea,[contenteditable=true],.modal,.menu'))return;const view=this.canvasView();if(!view?.canvas?.wrapperEl.contains(event.target))return;const n=view.canvas.selection.size===1?[...view.canvas.selection][0] as any:null;if(!n||n.isEditing)return;
     if(event.altKey&&!event.ctrlKey&&!event.shiftKey&&!event.metaKey&&(event.code==='KeyL'||event.code==='KeyC')){event.preventDefault();event.stopImmediatePropagation();if(event.code==='KeyL')this.editLabel();else this.editCaption();return;}
     if(event.key==='Enter'&&!event.altKey&&!event.ctrlKey&&!event.shiftKey&&!event.metaKey){const data=n.getData();if(data.canvasPortalRef?.role==='exit')return;if(data.type==='text'||data.type==='file'&&/\.md$/i.test(data.file)){event.preventDefault();event.stopImmediatePropagation();void this.modules.editor?.editorManager.openNode(view,n);}}
   }
   private reconcileSources(){let changed=false;for(const item of Object.values(this.library.items)){if(item.uctPortal)continue;const path=item.origin?.filePath??item.sourceReferencePath;if(path&&!this.app.vault.getAbstractFileByPath(path)){removeSource(this.library,path);changed=true;}}if(changed)void this.saveLibrary();}
-  async onunload(){this.stopped=true;this.placement?.cancel();this.mini?.destroy();for(const el of document.querySelectorAll('.uct-caption-add,.uct-caption-input'))el.remove();await this.modules.editor?.editorManager?.close();await Promise.allSettled([...this.queues.values()]);}
+  async onunload(){this.stopped=true;for(const window of this.previewWindows)window.close();this.previewWindows.clear();this.placement?.cancel();this.mini?.destroy();for(const el of document.querySelectorAll('.uct-caption-add,.uct-caption-input'))el.remove();await this.modules.editor?.editorManager?.close();await Promise.allSettled([...this.queues.values()]);}
 }
 
 class UctSettings extends PluginSettingTab {

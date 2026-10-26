@@ -1,9 +1,20 @@
 {
   "name": "ultimate-canvas-toolkit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Integrated Canvas tools for Obsidian",
-  "scripts": { "build": "node scripts/build.mjs", "check": "tsc --noEmit", "test": "node --experimental-strip-types --test tests/*.test.ts" },
-  "dependencies": { "fflate": "0.8.2" },
-  "devDependencies": { "@types/node": "^22.0.0", "esbuild": "^0.25.0", "obsidian": "^1.14.4", "typescript": "^5.9.0" }
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "fflate": "0.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.25.0",
+    "obsidian": "^1.14.4",
+    "typescript": "^5.9.0"
+  }
 }

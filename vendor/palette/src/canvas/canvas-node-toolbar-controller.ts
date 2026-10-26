@@ -91,13 +91,12 @@ export class CanvasNodeToolbarController {
     const selectionKey = `${nodes.map((node) => this.nodeId(node)).sort().join("|")}:${supportsFaces ? "eligible" : "excluded"}:${facesEnabled ? "faces" : "plain"}:${linked ? "linked" : "local"}`;
     const currentButtons = menuEl.querySelectorAll(":scope > .cp-canvas-toolbar-action");
     const separator = menuEl.querySelector(":scope > .cp-canvas-toolbar-separator");
-    const expectedButtons = 3 + (singleNodeId && supportsFaces ? 1 : 0) + (linked ? 1 : 0);
+    const expectedButtons = 2 + (singleNodeId && supportsFaces ? 1 : 0) + (linked ? 1 : 0);
     if (nodes.length === 0) { this.clear(menuEl); return; }
     if (menuEl.dataset.cpToolbarSelectionKey === selectionKey && currentButtons.length === expectedButtons && separator) return;
     this.clear(menuEl);
     menuEl.dataset.cpToolbarSelectionKey = selectionKey;
     menuEl.createSpan({ cls: "cp-canvas-toolbar-separator", attr: { "aria-hidden": "true" } });
-    this.button(menuEl, "tags", "Edit Palette Metadata", () => this.actions.editMetadata(nodes));
     this.button(menuEl, "inbox", "Collect to Mini Palette", () => this.actions.collectToMini());
     this.button(menuEl, "scissors", "잘라내어 Mini Palette에 수집", () => this.actions.cutToMini(), "cp-canvas-toolbar-action--cut");
     if (singleNodeId && supportsFaces && !facesEnabled) this.button(menuEl, "refresh-cw", "Enable Front / Back", () => this.actions.enableFaces(context.file.path, singleNodeId));

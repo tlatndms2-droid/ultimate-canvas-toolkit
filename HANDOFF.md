@@ -1,21 +1,19 @@
-# UCT 0.1.0 handoff
+# UCT 0.1.1 handoff
 
-2026-10-26. Code integration, build, 8 tests, isolated Obsidian 1.14.5 UI and same-Sandbox restart checks passed. Public Release 0.1.0 and BRAT 2.2.0 Latest version installation/activation passed. All three public assets matched the final build. BRAT main.js/styles.css are byte-identical; manifest JSON fields are identical, with BRAT whitespace serialization differences only. Source tag 0.1.0 points at 1800dcc.
+2026-10-27. Approved 12 mockups implemented. Build, TypeScript check, 11 tests, isolated Obsidian 1.14.5 UI and same-Sandbox restart passed. Release/BRAT verification pending. Read PROJECT_MEMORY.md, latest DECISIONS section and latest IMPLEMENTATION_PLAN section before continuing. Do not reopen settled choices.
 
-Read PROJECT_MEMORY.md, docs/uct/DECISIONS.md, docs/uct/IMPLEMENTATION_PLAN.md. Do not reopen settled choices. Final user authorization includes implementation and public release. Never delete original repositories until the human explicitly says “완성됐다”.
+## Source and build
 
-## Build
+Public repository: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit . Node >=22; pnpm build/check/test. Generated main.js/styles.css are release assets, manifest version0.1.1, minAppVersion1.14.4. Source styles are tracked explicitly; preserve those exceptions in .gitignore. No new runtime dependencies.
 
-Node >=22; pnpm install; pnpm build; pnpm check; pnpm test. Build entry src/main.ts and module sources vendor/. Root main.js/styles.css are generated and gitignored; attach main.js, manifest.json, styles.css to Release tag 0.1.0. No dependency on the original working repositories.
+## Current behavior
 
-## Runtime and data
+Alt+L inline name; label doubleclick anchored name/color. Alt+C or plain + caption, 16px logical gap. Enter/outside saves, Esc cancels. Waypoint UI/runtime/commands removed; historical Canvas fields untouched. Portal icons distinct. Presentation control strip removed; functions remain commands, new commands unbound. Mini derived format classification preserves saved types. Single click details, doubleclick big preview, rename by latest ID and customDisplayTitle; source filenames untouched. Native-coordinate group stage scales uniformly, including edges and PDF. Optional library.ui.collapsedFolders, 8 resize edges/corners. Preview lifetime closes PDF refs/media/observers/components. Initial detail rendering is delayed350ms to preserve actual doubleclick in a reflowing grid.
 
-Root plugin id ultimate-canvas-toolkit. Internal child module ids are namespaced; each uses modules/<name>/data.json, Outliner its dedicated settings file, Mini library.json. Existing plugin data are copied read-only on first run. Do not enable the seven originals alongside UCT.
+## Data and Sandbox
 
-Use only the already confirmed **work/UCT-Integration-Sandbox** and **work/UCT-Integration-Profile**, CDP port 19762 (rediscover on restart). App 1.14.5. Do not touch another Obsidian process or working Vault. Sandbox test files intentionally include deleted source fixtures, replacement files and recovery folders. Pre-test copies and evidence live in .validation/; do not delete them or publish them. Leave this Sandbox open for user review.
+Use only existing work/UCT-Integration-Sandbox and work/UCT-Integration-Profile, CDP19762; rediscover after restart. Never touch another Obsidian process or working Vault. Keep Sandbox open for review. Test Canvas UCT-011-Check.canvas and folder 0.1.1 검증 자료 contain own fixtures. Existing user6 Mini items are JSON-identical to pre-update copies. Backups and private evidence in .validation/0.1.1; never publish. library version remains1, module data paths unchanged. Selected Mini view/item are not newly persisted; geometry/collapse/data are.
 
-Product fixes during validation: Mini below native modal z-layer; native Shift+PDF drag fallback; editor focus after Enter; item editor openItem method; per-space Mindmap origins/Waypoints; failed placement rollback; rename metadata; recursive backup dependencies and link remapping; per-render Mini Markdown/observer/PDF cleanup. Final asset hashes and restart records are retained locally.
+## Safety and limits
 
-See IMPLEMENTATION_PLAN.md for executed checks and explicit untested branches. No claim of complete regression testing or measured speedup against the seven originals.
-
-Final Mini geometry fix: ResizeObserver records dimensions only during a real user resize gesture. Initial pre-stylesheet layout must not overwrite the persisted size. Actual resize to 1180x750, BRAT reload and same-Sandbox restart preserve the dimensions. Release repaired in place before final BRAT verification. Local final evidence: .validation/final-restart.json, public-release.json, brat-assets.json. User-facing checklist: docs/uct/USER_CHECKLIST.md.
+Original seven repositories must remain until the human explicitly says “완성됐다”. No working Vault change, no original filename change, no automatic backup or destructive old Waypoint cleanup. Runtime checks and limitations are in IMPLEMENTATION_PLAN; no claim of complete all-branch regression or measured speedup.

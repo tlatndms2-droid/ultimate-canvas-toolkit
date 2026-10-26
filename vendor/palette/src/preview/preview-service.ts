@@ -5,7 +5,7 @@ import { IMAGE_EXTENSIONS } from "../core/media";
 export class PreviewService {
   private readonly groupObservers = new WeakMap<HTMLElement, ResizeObserver>();
 
-  constructor(private readonly app: App, private readonly component: Component) {}
+  constructor(private readonly app: App, private readonly component: Component, private readonly pdfPool?: any) {}
 
   async render(parent: HTMLElement, item: PaletteItem, compact = false, compactLimit = 360, face: CardFace = "front"): Promise<void> {
     this.groupObservers.get(parent)?.disconnect();
@@ -92,8 +92,9 @@ export class PreviewService {
     const stage = viewport.createDiv({ cls: "cp-canvas-snapshot__stage" });
     const updateScale = (): void => {
       if (!viewport.isConnected) return;
-      const scale = Math.min(stage.clientWidth / width, stage.clientHeight / height);
-      viewport.style.setProperty("--cp-canvas-scale", String(Math.max(scale, .001)));
+      const scale = Math.min(viewport.clientWidth / width, viewport.clientHeight / height)*.94;
+      Object.assign(stage.style,{inset:'auto',width:width+'px',height:height+'px',left:(viewport.clientWidth-width*scale)/2+'px',top:(viewport.clientHeight-height*scale)/2+'px',transformOrigin:'0 0',transform:`scale(${Math.max(scale,.001)})`});
+      viewport.style.setProperty('--cp-canvas-scale','1');
     };
     const observer = new ResizeObserver(updateScale);
     this.component.register(() => observer.disconnect());
@@ -128,6 +129,8 @@ export class PreviewService {
         await MarkdownRenderer.render(this.app, node.text ?? "", content, sourcePath, this.component);
       } else if (node.type === "link") {
         content.setText(this.linkLabel(node.url));
+      } else if(file instanceof TFile&&file.extension.toLowerCase()==='pdf'&&this.pdfPool){
+        const entry=this.pdfPool.acquire(file);this.component.register(entry.release);const pdf=await entry.document;if(!parent.isConnected)return;const page=await pdf.getPage(1),base=page.getViewport({scale:1}),viewport=page.getViewport({scale:Math.max(.05,Math.min((node.width-32)/base.width,(node.height-32)/base.height))});const canvas=content.createEl('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);const task=page.render({canvasContext:canvas.getContext('2d'),viewport});this.component.register(()=>task.cancel());try{await task.promise;}catch(error:any){if(error?.name!=='RenderingCancelledException')throw error;}
       } else if (file instanceof TFile && file.extension.toLowerCase() === "md") {
         await MarkdownRenderer.render(this.app, await this.app.vault.cachedRead(file), content, file.path, this.component);
       } else content.setText(node.label ?? node.file?.split("/").pop() ?? "File");
@@ -137,10 +140,10 @@ export class PreviewService {
   private linkLabel(url: string | undefined): string { try { return new URL(url ?? "").hostname || url || "Link"; } catch { return url || "Link"; } }
 
   private positionSnapshotNode(element: HTMLElement, node: CanvasNodeSnapshot, width: number, height: number): void {
-    element.style.left = `${node.x / width * 100}%`;
-    element.style.top = `${node.y / height * 100}%`;
-    element.style.width = `${node.width / width * 100}%`;
-    element.style.height = `${node.height / height * 100}%`;
+    element.style.left = `${node.x}px`;
+    element.style.top = `${node.y}px`;
+    element.style.width = `${node.width}px`;
+    element.style.height = `${node.height}px`;
   }
 
   private renderCanvasEdge(svg: SVGSVGElement, edge: CanvasEdgeSnapshot, nodes: CanvasNodeSnapshot[], width: number, height: number): void {

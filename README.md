@@ -13,7 +13,7 @@ Obsidian 1.14.4 이상에서 BRAT의 **Add beta plugin**에 `tlatndms2-droid/ult
 | 텍스트·Markdown 빠른 편집 | 카드 선택 후 Enter. Esc로 저장하고 닫기 |
 | PDF 읽기 / 큰 보기 | Enter / Shift+Enter. Esc로 큰 보기 닫기 |
 | Portal 진입·복귀 | Ctrl+Enter. Outliner가 현재 공간으로 전환 |
-| 라벨 생성 | Alt+L → 기존 라벨 선택·생성 창 |
+| 라벨 생성 | Alt+L → 카드 위에 이름 직접 입력. 라벨 더블클릭 → 이름·색상 |
 | 캡션 생성 | Alt+C 또는 카드 아래에 나타나는 ＋ |
 | Mini 열기 | 명령 팔레트의 **Mini Palette 열기/닫기** |
 | Canvas → Mini | 기존 선택 툴바의 수집·잘라내기, 또는 해당 명령 |
@@ -37,4 +37,14 @@ Node.js 22 이상과 pnpm에서 `pnpm install`, `pnpm build`, `pnpm check`, `pnp
 - [구현과 검증 기록](docs/uct/IMPLEMENTATION_PLAN.md)
 - [사용자 확인 체크리스트](docs/uct/USER_CHECKLIST.md)
 
-초기 통합 버전 0.1.0입니다. 기존 모든 기능의 모든 분기를 검증한 것은 아니며 검증 범위는 구현 기록에 구분했습니다. Image Copy의 파일 클립보드 기능은 Windows 전용입니다.
+현재 버전은 0.1.1입니다. 기존 모든 기능의 모든 분기를 검증한 것은 아니며 검증 범위는 구현 기록에 구분했습니다. Image Copy의 파일 클립보드 기능은 Windows 전용입니다.
+
+## 0.1.1 화면과 조작
+
+Mini 항목은 한 번 클릭하면 상세, 더블클릭하면 형식별 큰 미리보기가 열립니다. PDF·이미지·Markdown·일반 카드·묶음·포탈의 형식과 아이콘을 구분합니다. 우클릭 **이름 변경**은 보관 항목의 표시 이름만 바꾸며 파일명을 바꾸지 않습니다. 묶음은 원래 크기·상대 위치·연결을 함께 축소합니다.
+
+Storage 제목 옆 버튼으로 왼쪽 영역을 접고 중앙의 **Storage 펼치기**로 다시 엽니다. 폴더의 모두 접기/펼치기와 개별 화살표 상태는 저장됩니다. 창의 네 변·네 모서리에서 크기를 바꾸고 제목줄로 이동합니다.
+
+Canvas 라벨·캡션은 Enter 또는 바깥 클릭으로 저장하고 Esc로 취소합니다. 캡션은 카드 아래 16px 간격으로 표시하며, 캡션이 없는 카드 아래에 마우스를 가까이 가져가면 단순 +가 나타납니다. Canvas Search의 **내용/라벨** 선택에서 라벨만 검색할 수 있습니다.
+
+Waypoint 기능은 제거했습니다. 과거 Canvas의 Waypoint 기록은 삭제하지 않습니다. 발표 상단 버튼은 제거하고 동일 기능을 명령으로 제공합니다. [단축키와 명령](docs/uct/SHORTCUTS.md)을 참고하세요.
