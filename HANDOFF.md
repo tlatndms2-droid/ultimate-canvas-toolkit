@@ -1,6 +1,6 @@
 # UCT 0.1.1 handoff
 
-2026-10-27. Approved 12 mockups implemented. Build, TypeScript check, 11 tests, isolated Obsidian 1.14.5 UI and same-Sandbox restart passed. Release/BRAT verification pending. Read PROJECT_MEMORY.md, latest DECISIONS section and latest IMPLEMENTATION_PLAN section before continuing. Do not reopen settled choices.
+2026-10-27. Approved 12 mockups implemented. Build, TypeScript check, 11 tests, isolated Obsidian 1.14.5 UI and same-Sandbox restart passed. Public Release0.1.1 (ID424428126, tag e311326) and BRAT2.2.0 Latest installation/activation passed. All public assets match final build. BRAT JS/CSS byte-identical, manifest fields identical with whitespace-only serialization difference. Post-BRAT actual doubleclick preview and Alt+L inline editor also passed; library/metadata/UI unchanged. Read PROJECT_MEMORY.md, latest DECISIONS section and latest IMPLEMENTATION_PLAN section before continuing. Do not reopen settled choices.
 
 ## Source and build
 

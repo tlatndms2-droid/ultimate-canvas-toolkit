@@ -1,6 +1,15 @@
 # UCT 0.1.1 — 12장 수정 시안 실행 기록
 
-2026-10-27. 코드 수정·TypeScript 검사·빌드·11개 테스트·격리 앱 UI·동일 Sandbox 재시작 통과. Release/BRAT 확인은 현재 진행 중이다. 아래 0.1.0 기록은 이전 버전의 역사적 확인이며 현재 동작은 본 절과 DECISIONS 최신 절을 우선한다.
+2026-10-27. 코드 수정·TypeScript 검사·빌드·11개 테스트·격리 앱 UI·동일 Sandbox 재시작 통과. 공개 Release 0.1.1과 BRAT 2.2.0 Latest 설치·활성화 및 설치 후 입력/더블클릭 확인까지 통과했다. 아래 0.1.0 기록은 이전 버전의 역사적 확인이며 현재 동작은 본 절과 DECISIONS 최신 절을 우선한다.
+
+## 공개 배포 확인
+
+- Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.1 , ID424428126, 소스 태그 e311326.
+- 공개 main.js/manifest.json/styles.css는 재시작 검증한 로컬 빌드와 모두 바이트 일치한다.
+- BRAT 설치본 main.js/styles.css도 바이트 일치하며 manifest는 JSON 공백 재직렬화만 다르고 모든 필드가 같다. version0.1.1 활성화, 설치 전후 항목/폴더/metadata/UI 값 동일. BRAT 설치 후 실제 더블클릭 묶음 미리보기와 Alt+L 직접 입력을 재확인했다.
+- SHA256 main.js: 7fb505b92be41eae3113043361d2722afd87aefe44df7367516eb21b2f79d6c0
+- SHA256 manifest.json: a7b51477f09332c275c17acdee98aa5942acdb2f8b48b7eb5951aa6c6570ddeb
+- SHA256 styles.css: fdd13a143928acdea3ef1a68b2f4f964f3da36274835a6e65d85a1aef37f0122
 
 ## 이번 변경과 확인
 

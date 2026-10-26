@@ -1,6 +1,6 @@
 # Ultimate Canvas Toolkit — 현재 프로젝트 상태
 
-2026-10-27. 사용자가 12장 수정 시안의 구현·실제 앱 검증·공개 배포를 명시적으로 승인했다. **UCT 0.1.1 코드·격리 앱/재시작 확인 완료, 공개 Release·BRAT 확인 진행 중**이다. 과거 조사 전용/미구현 기록은 현재 상태가 아니다.
+2026-10-27. 사용자가 12장 수정 시안의 구현·실제 앱 검증·공개 배포를 명시적으로 승인했다. **UCT 0.1.1 코드·격리 앱/재시작·공개 Release·BRAT 확인 완료**이다. 과거 조사 전용/미구현 기록은 현재 상태가 아니다.
 
 공개 저장소: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit
 
@@ -29,3 +29,5 @@
 이전 0.1.0 Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.0 . 공개 자산 3개를 로컬 빌드와 바이트 대조했다. BRAT Latest version 설치 후 main.js/styles.css SHA256 일치, manifest는 BRAT JSON 압축 재직렬화에 따른 공백 차이만 있고 모든 필드가 같다. Sandbox를 열어 두었다. 원본 저장소 삭제 미실행.
 
 0.1.1의 최신 기준은 DECISIONS 맨 위 절과 IMPLEMENTATION_PLAN 맨 위 실행 기록이다. Waypoint는 제거했고 과거 저장 기록만 보존한다. 발표 상단 버튼은 명령으로 제공한다. Mini의 클릭 상세/더블클릭 미리보기·형식·이름 변경·원래 배치 묶음·8방향 리사이즈·폴더 접힘을 확인했다.
+
+최신 Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.1 . 태그 e311326. 공개3자산 일치, BRAT0.1.1 활성화와 자료 보존 확인 완료. manifest는 BRAT 공백 재직렬화 차이만 있다.
