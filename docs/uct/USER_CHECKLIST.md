@@ -1,6 +1,6 @@
 # 사용자 확인 체크리스트
 
-Codex 검증: 격리 Obsidian 1.14.5에서 Portal 공간 전환, 라벨·캡션·Canvas Search, Enter 편집/닫기, Shift+Enter PDF, Mini 드래그 이동·Shift 복사·취소·실패 복원, ZIP 복구, 실제 앱 재시작을 확인했습니다. 실제 작업 Vault는 변경하지 않았습니다.
+Codex 검증: 격리 Obsidian 1.14.5에서 Portal 공간 전환, 라벨·캡션·Canvas Search, Enter 편집/닫기, Shift+Enter PDF, Mini 드래그 이동·Shift 복사·취소·실패 복원, ZIP 복구, 실제 앱 재시작을 확인했습니다. 실제 작업 Vault는 변경하지 않았습니다. 공개 Release 0.1.0 자산과 BRAT 2.2.0 Latest version 설치·활성화도 확인했습니다.
 
 - [ ] BRAT에 `tlatndms2-droid/ultimate-canvas-toolkit`을 추가하고 기존 7개 플러그인은 끈 뒤 UCT를 켭니다. 기대 결과: UCT 0.1.0 한 개로 기능이 열립니다.
 - [ ] Portal에 들어갔다 나옵니다. 기대 결과: Outliner가 현재 공간만 표시하고, 라벨·캡션과 검색 결과가 해당 공간에 맞습니다.

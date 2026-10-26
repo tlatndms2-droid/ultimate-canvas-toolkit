@@ -1,6 +1,6 @@
 # Ultimate Canvas Toolkit — 현재 프로젝트 상태
 
-2026-10-26. 사용자가 전체 구현·실제 앱 검증·공개 배포를 명시적으로 승인했다. **UCT 0.1.0 구현 및 격리 앱/재시작 검증 완료, 공개 Release·BRAT 확인 진행 중**이다. 과거 조사 전용/미구현 기록은 현재 상태가 아니다.
+2026-10-26. 사용자가 전체 구현·실제 앱 검증·공개 배포를 명시적으로 승인했다. **UCT 0.1.0 구현·격리 앱/재시작·공개 Release·BRAT 확인 완료**이다. 과거 조사 전용/미구현 기록은 현재 상태가 아니다.
 
 공개 저장소: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit
 
@@ -25,3 +25,5 @@
 - 새 저장소는 처음부터 공개. 원본 7개 저장소는 사용자가 직접 **“완성됐다”**라고 말한 뒤에만 삭제. 아직 그 선언이나 삭제는 없다.
 
 원본 고정 소스는 vendor/와 reference/에 보존했다. 원본 AGENTS/HANDOFF는 역사적 참고 문서이며 UCT 지침이 아니다. 현재 소스와 HANDOFF가 우선한다. 사용자 실제 Vault는 변경하지 않았다.
+
+최종 Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.0 . 공개 자산 3개를 로컬 빌드와 바이트 대조했다. BRAT Latest version 설치 후 main.js/styles.css SHA256 일치, manifest는 BRAT JSON 압축 재직렬화에 따른 공백 차이만 있고 모든 필드가 같다. Sandbox를 열어 두었다. 원본 저장소 삭제 미실행.

@@ -12,7 +12,7 @@
 | ④ 기능 통합 | 완료. Portal 공간별 Outliner·metadata·입력·PDF·편집기·Mindmap, 라벨 자동 표시·Canvas Search, Alt+L/Alt+C/hover ＋ |
 | ⑤ Mini 통합 | 완료. Storage/Collect/폴더/미분류/형식별 보기/조건부 상세/검색·정렬·기존 선택·이관·드래그·수동 ZIP·독립 링크 Portal |
 | ⑥ 실제 앱 검증 | 완료. 격리 Obsidian 1.14.5에서 실제 화면·동작·동일 빌드 재시작 확인. 아래 범위 참조 |
-| ⑦ Release·BRAT | 진행 중. 게시 자산 해시 및 실제 BRAT 설치 완료 후 상태 갱신 |
+| ⑦ Release·BRAT | 완료. 공개 Release 0.1.0 자산 3개와 로컬 빌드 대조. BRAT 2.2.0 Latest version으로 설치·활성화 확인 |
 | ⑧ 원본 저장소 삭제 | 미실행. 사용자가 직접 “완성됐다”고 말한 뒤에만 7개 대상 삭제. 배포 성공으로 대체하지 않음 |
 
 ## 실제 코드 연결
@@ -57,3 +57,16 @@
 초기 구현 예상 57–96분은 측정 전 임시 추정이었다. 구현·조사·대화 전환의 경계를 연속 측정하지 않아 이를 실제 작업 시간으로 보고하지 않는다. Codex 사용량은 높음. 보관 링크 사본·사용자 ZIP만큼 디스크가 늘고 압축/복구 동안 메모리와 CPU가 일시적으로 증가한다. Mini 주기 백업·상시 네트워크 동기화는 추가하지 않았다.
 
 합의된 사용자 동작 변경이 필요하면 해당 구현을 멈추고 먼저 결정한다. 검증 실패 시 배포하지 않는다. 원본 삭제는 별도 사용자 선언 전까지 실행하지 않는다.
+
+## 최종 공개 배포 확인
+
+- 공개 저장소: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit
+- Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.0
+- 동일 Release ID 424224306. 최초 게시 후 재로드에서 확인한 Mini 초기 스타일 적용 전 창 크기 저장 문제를 수정하고, 임시 draft 상태에서 같은 0.1.0 자산과 소스 태그를 갱신했다. 중복 Release를 만들지 않았다.
+- 최종 소스 태그 커밋: `1800dcc`.
+- main.js SHA256: `048e95380e6c176169aa02911865b62bb16dd7684286244d4376fb59095a4a73`.
+- styles.css SHA256: `ac82fbb7f49125200e6b29be0546e70acb85aba00552a737dba6bfc329ecab05`.
+- manifest.json 공개 SHA256: `804fd5a95c0b7a63c0fd198fd29bcb2288da95dad602e245eede30f2ccca9352`.
+- 공개 자산 3개는 로컬 최종 빌드/실제 재시작 검증 설치본과 바이트 일치. 이후 BRAT 설치의 main.js/styles.css도 일치한다. BRAT은 manifest를 압축 JSON으로 재직렬화하므로 바이트 해시는 다르지만 파싱한 모든 필드·버전·최소 앱 버전이 같다.
+- BRAT 2.2.0의 실제 Add plugin UI와 Latest version 다운로드·파일 쓰기·활성화를 확인했다. 최종 수정 후 BRAT 자체 재설치 경로로 다시 다운로드하고 활성화했다. 버전 0.1.0, 내부 기능 7개, Mini·보관 자료·1180×750 창 크기 유지. 실제 앱 1.14.5, 최종 자산의 재시작 확인 통과.
+- 사용자 실제 Vault 변경과 원본 저장소 삭제는 실행하지 않았다. Sandbox는 최종 설치본과 시험 자료를 남겨 열어 두었다.
