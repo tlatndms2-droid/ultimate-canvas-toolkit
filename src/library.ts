@@ -1,8 +1,16 @@
 export type StoredItem = Record<string, any> & {id:string;displayTitle:string;folderId:string|null;origin:Record<string,any>;createdAt:number;modifiedAt:number};
 export interface LibraryFolder {id:string;name:string;parentId:string|null;}
-export interface LibraryData {version:1;migrated:boolean;items:Record<string,StoredItem>;folders:LibraryFolder[];ui:{collapsedFolders?:string[];open:boolean;left:boolean;mode:'grid'|'list';sort:string;width:number;height:number;x:number|null;y:number|null};}
+export interface LibraryData {version:1;migrated:boolean;items:Record<string,StoredItem>;folders:LibraryFolder[];ui:{storageWidth?:number;mainWidth?:number;mainX?:number;collapsedFolders?:string[];formatsCollapsed?:boolean;open:boolean;left:boolean;mode:'grid'|'list';sort:string;width:number;height:number;x:number|null;y:number|null};}
 export const uid=()=>crypto.randomUUID().replaceAll('-','');
 export const emptyLibrary=():LibraryData=>({version:1,migrated:false,items:{},folders:[{id:'unclassified',name:'미분류',parentId:null}],ui:{open:false,left:true,mode:'grid',sort:'modified-desc',width:1060,height:660,x:null,y:null}});
+export function folderCounts(data:LibraryData):Map<string,number>{
+  const parents=new Map(data.folders.map(f=>[f.id,f.parentId]));
+  const counts=new Map(data.folders.map(f=>[f.id,0]));
+  for(const item of Object.values(data.items)){
+    let id=item.folderId;const visited=new Set<string>();
+    while(id&&parents.has(id)&&!visited.has(id)){visited.add(id);counts.set(id,(counts.get(id)??0)+1);id=parents.get(id)??null;}
+  }return counts;
+}
 export function validateLibrary(value:any):asserts value is LibraryData {
   if(value?.version!==1||!value.items||typeof value.items!=='object'||Array.isArray(value.items)||!Array.isArray(value.folders))throw Error('지원하지 않는 Mini 보관함 형식입니다.');
   const folderIds=new Set(value.folders.map((f:any)=>f.id));
@@ -14,14 +22,13 @@ export function deleteFolder(data:LibraryData,id:string){if(id==='unclassified')
 export function removeSource(data:LibraryData,path:string,folder=false):string[]{
   const matches=(p:unknown)=>typeof p==='string'&&(p===path||folder&&p.startsWith(path+'/'));const removed:string[]=[];
   for(const item of Object.values(data.items)){
-    if(item.uctPortal?.independent)continue;
-    if(matches(item.origin?.filePath)||matches(item.sourceReferencePath)){delete data.items[item.id];removed.push(item.id);continue;}
+    if(!item.uctPortal?.independent&&(matches(item.origin?.filePath)||matches(item.sourceReferencePath))){delete data.items[item.id];removed.push(item.id);continue;}
     for(const graph of itemGraphs(item)){const bad=new Set((graph.nodes??[]).filter((n:any)=>matches(n.file)).map((n:any)=>n.id));if(bad.size){graph.nodes=graph.nodes.filter((n:any)=>!bad.has(n.id));graph.edges=(graph.edges??[]).filter((e:any)=>!bad.has(e.fromNode)&&!bad.has(e.toNode));}}
     if(item.group&&!item.group.nodes.length&&!item.uctPortal){delete data.items[item.id];removed.push(item.id);}
   }return removed;
 }
 function itemGraphs(item:StoredItem):any[]{return [item.group,item.uctPreviewGroup,item.uctPortal?.transfer,...Object.values(item.uctPortal?.transfer?.canvasPortalTransfer?.portals??{}).map((p:any)=>p.graph)].filter(Boolean);}
-export function renameSource(data:LibraryData,oldPath:string,newPath:string){const map=(p:any)=>typeof p==='string'&&(p===oldPath||p.startsWith(oldPath+'/'))?newPath+p.slice(oldPath.length):p;for(const item of Object.values(data.items)){if(item.uctPortal?.independent)continue;item.origin.filePath=map(item.origin.filePath);if(item.sourceReferencePath)item.sourceReferencePath=map(item.sourceReferencePath);for(const g of itemGraphs(item))for(const n of g.nodes??[])if(n.file)n.file=map(n.file);}}
+export function renameSource(data:LibraryData,oldPath:string,newPath:string){const map=(p:any)=>typeof p==='string'&&(p===oldPath||p.startsWith(oldPath+'/'))?newPath+p.slice(oldPath.length):p;for(const item of Object.values(data.items)){if(!item.uctPortal?.independent){item.origin.filePath=map(item.origin.filePath);if(item.sourceReferencePath)item.sourceReferencePath=map(item.sourceReferencePath);}if(item.uctPortal?.assets)item.uctPortal.assets=item.uctPortal.assets.map(map);for(const g of itemGraphs(item))for(const n of g.nodes??[])if(n.file)n.file=map(n.file);}}
 export function migratePalette(data:LibraryData,old:any){
   if(data.migrated)return;const originals=old?.items??{};const pending=new Set(old?.pendingItemIds??[]);const mappedFolders=new Map<string,string>();const assigned=new Set<string>();
   const addItem=(id:string,parent:string|null)=>{if(!originals[id])return;if(assigned.has(id)){const clone=structuredClone(originals[id]);clone.id=uid();clone.folderId=parent;clone.tags=[];clone.canvasPlacements=[];data.items[clone.id]=clone;return;}const item=structuredClone(originals[id]);item.id=id;item.folderId=parent;item.tags=[];item.canvasPlacements=[];item.origin??={};data.items[id]=item;assigned.add(id);};

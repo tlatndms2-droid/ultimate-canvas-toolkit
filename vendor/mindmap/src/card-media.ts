@@ -31,6 +31,7 @@ export class CardMedia{
   const d=node.getData(),file=d.type==='file'?this.app.vault.getFileByPath(d.file):null;
   if(d.type==='file'&&!file){new Notice('미디어 파일을 찾을 수 없습니다.');return;}
   if(file&&mediaExtensions.image.has(file.extension.toLowerCase())){
+   const unified=(this.app as any).plugins?.plugins?.['ultimate-canvas-toolkit']?.media;if(unified?.openFile(file))return;
    if(this.preview)return;
    this.preview=new MediaPreview(this.app,'image',file,()=>{this.preview=null;if(this.current()===canvas&&canvas.nodes.has(node.id))canvas.wrapperEl.focus({preventScroll:true});});
    this.preview.open();return;

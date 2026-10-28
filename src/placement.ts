@@ -38,7 +38,7 @@ export class MiniPlacement {
       }
       try{await this.root.portal.commitRoot(s,after,added,true);}catch(error){await this.root.portal.commitRoot(s,before,[],true);throw error;}
       for(const [space,graph]of [['root',after],...Object.entries(after.canvasPortal?.portals??{}).map(([id,p]:[string,any])=>[id,p.graph])] as [string,any][]){for(const node of graph.nodes??[])if(node.uctMetadata){const key=space==='root'?ctx.file.path:ctx.file.path+'#uct-portal:'+space;this.root.palette.store.setMetadataRecord(key,node.id,node.uctMetadata,Date.now());}}
-      for(const entry of metadata)this.root.palette.store.setCanvasNodeMetadata(ctx.file.path,entry.nodeId,entry.metadata);
+      for(const entry of metadata)this.root.palette.store.setCanvasNodeMetadata(s.current?ctx.file.path+'#uct-portal:'+s.current:ctx.file.path,entry.nodeId,entry.metadata);
       this.root.palette.store.changed();
       if(!copy)for(const part of parts)delete this.root.library.items[part.item.id];
       try{await this.root.saveLibrary();}catch(error){for(const part of parts)this.root.library.items[part.item.id]=part.item;throw error;}new Notice(copy?'복사해 배치했습니다. Mini에도 남아 있습니다.':'배치했습니다. Mini에서 옮겨졌습니다.');

@@ -1,3 +1,11 @@
+## 2026-10-27 컴포지션·편집기·전체 화면 미디어 — 로컬 0.1.5
+
+사용자 승인한 4개 배경과 장식 유지/Obsidian 마크 반영. Ctrl+Shift+Enter Live Preview 집중 편집, Enter 작은 편집기 자동 저장·테두리 전체 리사이즈, 전체 화면 미디어 구현. TypeScript·빌드·18검사·실제 Sandbox UI/재시작 통과. 상세 범위/제약은 docs/uct/LOCAL_AUDIT_0.1.5.md. CDP19764, UCT-Integration-Sandbox/Profile. **배포 금지 유지. 공개0.1.1 그대로, push/Release/BRAT 미실행.**
+
+## 2026-10-27 현재 상태 — 로컬 0.1.2, 배포 금지
+
+사용자 요청: 합의 기능 전체 검증·수정 후 Sandbox를 열고 배포하지 않기. 0.1.1 공개 이후 사용자 지적을 반영한 로컬 수정본이다. 단위 검사 14개·빌드·실제 Sandbox 동작·재시작 저장값 대조 완료. 공개 최신판 0.1.1 유지, push/Release/BRAT 미실행. 상세 검증과 한계는 [LOCAL_AUDIT_0.1.2.md](LOCAL_AUDIT_0.1.2.md). Sandbox/CDP19762, UCT-Integration-Profile, Obsidian1.14.5.
+
 # UCT 0.1.1 — 12장 수정 시안 실행 기록
 
 2026-10-27. 코드 수정·TypeScript 검사·빌드·11개 테스트·격리 앱 UI·동일 Sandbox 재시작 통과. 공개 Release 0.1.1과 BRAT 2.2.0 Latest 설치·활성화 및 설치 후 입력/더블클릭 확인까지 통과했다. 아래 0.1.0 기록은 이전 버전의 역사적 확인이며 현재 동작은 본 절과 DECISIONS 최신 절을 우선한다.

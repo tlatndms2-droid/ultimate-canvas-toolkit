@@ -4,6 +4,7 @@ import {itemKind} from './item-kind';
 const {PreviewService}=require('../vendor/palette/src/preview/preview-service');
 export function openItemPreview(root:UctPlugin,id:string){
   const item=root.library.items[id];if(!item)return;const source=item.origin?.filePath??item.sourceReferencePath;const file=source?root.app.vault.getAbstractFileByPath(source):null;
+  if(file instanceof TFile&&!item.uctPreviewGroup&&root.media.openFile(file))return;
   if(itemKind(item).label==='PDF'){if(file instanceof TFile)root.modules.pdf.openPopup(file,1);else new Notice('원본 PDF가 없습니다.');return;}
   class Preview extends Modal {
     component=new Component();closed=false;

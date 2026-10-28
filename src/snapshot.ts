@@ -1,6 +1,7 @@
 import {TFile,Notice} from 'obsidian';
 import type UctPlugin from './main';
 import {uid,type StoredItem} from './library';
+import {repairPortalPresentation} from './item-kind';
 const M=require('../vendor/portal/src/model.cjs');
 const {serializeGroup}=require('../vendor/palette/src/canvas/group-serializer');
 
@@ -22,13 +23,13 @@ export async function collectSelection(root:UctPlugin,cut:boolean){
       const transfer={nodes:structuredClone(selectedNodes),edges:source.edges.filter((e:any)=>ids.has(e.fromNode)&&ids.has(e.toNode)),canvasPortalTransfer:{version:1,portals:records}};
       for(const node of transfer.nodes){const meta=root.metadata(path,node.id);if(meta)node.uctMetadata=structuredClone(meta);}
       const group=serializeGroup(transfer.nodes,transfer.edges);const first=portalNodes[0],meta=root.metadata(path,first.id)??{};
-      let previewGroup=group;const firstPortal=records[first.canvasPortalRef.id];if(firstPortal?.type==='select'){const nodes=firstPortal.graph.nodes.filter((n:any)=>n.canvasPortalRef?.role!=='exit');if(nodes.length)previewGroup=serializeGroup(nodes,firstPortal.graph.edges);}else if(firstPortal?.target){const file=root.app.vault.getAbstractFileByPath(firstPortal.target);if(file instanceof TFile){const doc=JSON.parse(await root.app.vault.read(file));if(doc.nodes.length)previewGroup=serializeGroup(doc.nodes,doc.edges);}}
+      let previewGroup=group;const firstPortal=records[first.canvasPortalRef.id];const singlePortal=selectedNodes.length===1;if(singlePortal&&firstPortal?.type==='select'){const nodes=firstPortal.graph.nodes.filter((n:any)=>n.canvasPortalRef?.role!=='exit');if(nodes.length)previewGroup=serializeGroup(nodes,firstPortal.graph.edges);}else if(singlePortal&&firstPortal?.target){const file=root.app.vault.getAbstractFileByPath(firstPortal.target);if(file instanceof TFile){const doc=JSON.parse(await root.app.vault.read(file));if(doc.nodes.length)previewGroup=serializeGroup(doc.nodes,doc.edges);}}
       captures=[{id:uid(),type:'group',displayTitle:firstPortal?.name??'포탈 묶음',origin:{canvasPath:path},canvasPlacements:[],tags:[],label:meta.label??'',labelColor:meta.labelColor??'',caption:meta.caption??'',backContent:'',facesEnabled:false,createdAt:Date.now(),modifiedAt:Date.now(),group,uctPortal:{transfer,independent,assets:created},uctPreviewGroup:previewGroup}];
     }else if(cut){const item=pal.canvas.groupItem(selectedNodes,source.edges,path,selectedNodes[0].id,true);if(item)captures=[item];}
     else captures=await pal.canvas.collectIds(source,path,selected);
     if(!captures.length)throw Error('보관할 수 있는 자료가 없습니다.');
-    const snapshotMeta=(item:any)=>{item.id=uid();item.folderId=null;item.tags=[];item.canvasPlacements=[];item.origin??={};if(item.group)for(const meta of Object.values(item.group.nodeMetadata??{}) as any[])meta.tags=[];return item as StoredItem;};
-    captures=captures.map(snapshotMeta);
+    const snapshotMeta=(item:any)=>{item.id=uid();if(cut&&item.type==='group')item.cutFromCanvas=true;item.folderId=null;item.tags=[];item.canvasPlacements=[];item.origin??={};item.origin.canvasPath??=path;if(item.group)for(const meta of Object.values(item.group.nodeMetadata??{}) as any[])meta.tags=[];return item as StoredItem;};
+    captures=captures.map(snapshotMeta);for(const item of captures)repairPortalPresentation(item);
     const before=structuredClone(source);
     for(const item of captures)root.library.items[item.id]=item;
     try{
@@ -45,7 +46,7 @@ export async function collectSelection(root:UctPlugin,cut:boolean){
 /** Allocates the destination before walking dependencies, so cyclic Canvas or
  * Markdown links resolve to one captured file rather than recursive copies. */
 export async function copyAsset(root:UctPlugin,path:string,map:Map<string,string>,created:string[]):Promise<string>{
-  if(map.has(path))return map.get(path)!;const source=root.app.vault.getAbstractFileByPath(path);if(!(source instanceof TFile))throw Error('독립 보관할 파일이 없습니다: '+path);
+  if(map.has(path))return map.get(path)!;const source=root.app.vault.getAbstractFileByPath(path);if(!(source instanceof TFile))throw Error('링크 포탈의 원본 파일을 찾지 못해 수집을 취소했습니다: '+path+' · 선택한 카드는 삭제하지 않았습니다.');
   const target=await root.app.fileManager.getAvailablePathForAttachment('uct-'+uid().slice(0,10)+'-'+source.name,root.canvasView()?.file?.path);map.set(path,target);
   if(source.extension==='canvas'){
     const doc=JSON.parse(await root.app.vault.read(source));
@@ -62,3 +63,4 @@ export async function copyAsset(root:UctPlugin,path:string,map:Map<string,string
   }else{await root.app.vault.createBinary(target,await root.app.vault.readBinary(source));created.push(target);}
   return target;
 }
+

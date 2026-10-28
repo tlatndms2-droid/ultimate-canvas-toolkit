@@ -270,6 +270,7 @@ export default class CanvasMindmap extends Plugin {
   }
  }
  private keydown(e:KeyboardEvent){
+  if(document.querySelector('.uct-composition'))return;
   if(this.drawingBlocked())return;
   if(e.key!=='Alt'){if(this.altTap)this.altTap.clean=false;this.clearAltRepeat();}
   const activeCanvas=this.current();if(activeCanvas&&this.toolChoiceKey(e,activeCanvas))return;
@@ -341,6 +342,7 @@ export default class CanvasMindmap extends Plugin {
   hold.timer=window.setTimeout(()=>{if(this.hold!==hold||this.current()!==canvas||this.selected(canvas)?.id!==anchor)return;hold.consumed=true;this.openMenu(key==='Control'?'mode':'source',canvas,anchor);},key==='Control'?500:200);
  }
  private keyup(e:KeyboardEvent){
+  if(document.querySelector('.uct-composition'))return;
   if(this.drawingBlocked())return;
   if(e.code==='KeyA'||e.key==='Control'||e.key==='Shift')this.clearConnectHint();
   if(e.key==='Control'||e.key==='Shift'){if(this.linkTimer!==null)window.clearTimeout(this.linkTimer);this.linkTimer=null;if(this.linkMenu&&!this.linkMenu.ids.length)this.clearLinkMenu();}

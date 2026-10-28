@@ -1,10 +1,18 @@
+## 2026-10-27 컴포지션·편집기·전체 화면 미디어 — 로컬 0.1.5
+
+사용자 승인한 4개 배경과 장식 유지/Obsidian 마크 반영. Ctrl+Shift+Enter Live Preview 집중 편집, Enter 작은 편집기 자동 저장·테두리 전체 리사이즈, 전체 화면 미디어 구현. TypeScript·빌드·18검사·실제 Sandbox UI/재시작 통과. 상세 범위/제약은 docs/uct/LOCAL_AUDIT_0.1.5.md. CDP19764, UCT-Integration-Sandbox/Profile. **배포 금지 유지. 공개0.1.1 그대로, push/Release/BRAT 미실행.**
+
+## 2026-10-27 현재 상태 — 로컬 0.1.2, 배포 금지
+
+사용자 요청: 합의 기능 전체 검증·수정 후 Sandbox를 열고 배포하지 않기. 0.1.1 공개 이후 사용자 지적을 반영한 로컬 수정본이다. 단위 검사 14개·빌드·실제 Sandbox 동작·재시작 저장값 대조 완료. 공개 최신판 0.1.1 유지, push/Release/BRAT 미실행. 상세 검증과 한계는 [LOCAL_AUDIT_0.1.2.md](LOCAL_AUDIT_0.1.2.md). Sandbox/CDP19762, UCT-Integration-Profile, Obsidian1.14.5.
+
 # Ultimate Canvas Toolkit — 확정 범위
 
 2026-10-26. 사용자 결정 완료 후 전체 구현·실제 앱 검증·공개 배포를 승인받았다. 상세 결정은 [DECISIONS.md](DECISIONS.md), 실제 진행 상태는 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md)를 따른다. 이 범위에 나중에 정할 사용자 동작은 남기지 않는다.
 
 ## 통합 기능
 
-- Mindmap: 기존 카드 생성·연결·해제·방향·탐색·정렬·크기·선택 이력·Waypoint·파일 삽입·색상·미디어 기능을 재사용한다.
+- Mindmap: 기존 카드 생성·연결·해제·방향·탐색·정렬·크기·선택 이력·파일 삽입·색상·미디어 기능을 재사용한다.
 - Portal: 가상 포탈과 실제 다른 Canvas의 링크 포탈, 중첩·복제·이동·해제·복귀·Undo·저장 안전 기능을 유지한다.
 - Outliner: 기존 등록·그룹·Collection·발표·Vision·Remote 기능을 유지한다. 현재 Portal 공간만 표시하고, 안쪽 Portal은 진입 전에는 항목으로만 보인다. 라벨 있는 항목을 자동 표시하며 라벨·캡션은 확인 전용이다. Canvas Search에 라벨을 포함한다.
 - Visibility: Enter 빠른 텍스트/Markdown 편집기만 사용한다. 접기 모듈·전용 타이머·접기 UI는 실행하지 않는다.
@@ -14,7 +22,7 @@
 
 ## 공통 공간과 입력
 
-파일 경로 + 포탈 ID로 공간을 구분한다. Outliner·metadata·PDF·편집기·Mindmap 출발점이 현재 공간을 공유한다. Waypoint는 각 공간 graph에 저장한다. Alt+L은 기존 라벨 선택·생성 창, Alt+C와 카드 아래 hover ＋는 캡션 입력이다. 입력창·IME 중에는 단축키를 중복 실행하지 않는다.
+파일 경로 + 포탈 ID로 공간을 구분한다. Outliner·metadata·PDF·편집기·Mindmap 출발점이 현재 공간을 공유한다. Waypoint 기능은 제거하고 과거 저장 기록만 보존한다. Alt+L은 카드 위 라벨 직접 입력, Alt+C와 카드 아래 hover ＋는 캡션 입력이다. 입력창·IME 중에는 단축키를 중복 실행하지 않는다.
 
 ## Mini
 
@@ -34,4 +42,4 @@ Workspace 이름을 새 최상위 폴더로 옮기고 하위 구조·직접 항�
 
 ## 순서와 종료 조건
 
-결정 완료 → 최종 기획 기록 → UCT 기반 → 기능 연결 → Mini 통합 → 실제 앱 설치·UI·재시작 확인 → 공개 Release·BRAT 확인. 검증 실패 시 배포하지 않는다. 기존 7개 저장소 삭제는 사용자가 직접 “완성됐다”라고 말한 뒤에만 한다.
+결정 완료 → 최종 기획 기록 → UCT 기반 → 기능 연결 → Mini 통합 → 실제 앱 설치·UI·재시작 확인. 현재 요청은 여기까지이며 배포 금지. 검증 실패 시 배포하지 않는다. 기존 7개 저장소 삭제는 사용자가 직접 “완성됐다”라고 말한 뒤에만 한다.

@@ -342,7 +342,7 @@ export class TagLabelModal extends Modal {
     for (const item of [...workspaceItems, ...items]) if (item.label && item.labelColor && !labelColors.has(item.label)) labelColors.set(item.label, item.labelColor);
     this.modalEl.addClass("cp-tag-label-shell");
     this.contentEl.addClass("canvas-palette", "cp-tag-label-modal");
-    this.contentEl.createEl("h2", { text: items.length === 1 ? "Tags, label & caption" : `Tags, label & caption · ${items.length} items` });
+    this.contentEl.createEl("h2", { text: items.length === 1 ? "라벨 · 캡션" : `라벨 · 캡션 · ${items.length}개` });
     const tagSection = this.contentEl.createDiv({ cls: "cp-metadata-picker-section" });
     const tagHeading = tagSection.createDiv({ cls: "cp-metadata-picker-heading" });
     tagHeading.createEl("h3", { text: "Tags" });

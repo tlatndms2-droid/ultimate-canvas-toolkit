@@ -15,7 +15,7 @@ export class CanvasAdapter {
   // A loaded empty Canvas has string data; null means the graph is not authoritative.
   if(typeof v.data!=='string'||typeof v.lastSavedData!=='string')return null;
   return c.getData();}
- element():HTMLElement|null{return this.canvas?.wrapperEl??this.canvas?.canvasEl??this.view?.containerEl??null;}
+ element():HTMLElement|null{const c=this.canvas;return c?(c.wrapperEl??c.canvasEl??this.view?.containerEl??null):null;}
  node(id:string):any{return this.canvas?.nodes?.get(id);}
  selection():string[]{return [...(this.canvas?.selection??[])].map((n:any)=>n.id);}
  async open(path:string){const f=this.app.vault.getAbstractFileByPath(path);if(f instanceof TFile){const leaf=this.app.workspace.getLeaf(false);await leaf.openFile(f);this.activate(leaf);}}

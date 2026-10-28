@@ -11,6 +11,8 @@ Obsidian 1.14.4 이상에서 BRAT의 **Add beta plugin**에 `tlatndms2-droid/ult
 | 동작 | 조작 / 결과 |
 |---|---|
 | 텍스트·Markdown 빠른 편집 | 카드 선택 후 Enter. Esc로 저장하고 닫기 |
+| 컴포지션 모드 | Ctrl+Shift+Enter 진입·복귀, Esc 복귀. 템플릿·글꼴은 UCT 설정 |
+| 영상·음악 큰 미리보기 | Canvas에서 Enter. Space 재생·일시정지, Esc 종료 |
 | PDF 읽기 / 큰 보기 | Enter / Shift+Enter. Esc로 큰 보기 닫기 |
 | Portal 진입·복귀 | Ctrl+Enter. Outliner가 현재 공간으로 전환 |
 | 라벨 생성 | Alt+L → 카드 위에 이름 직접 입력. 라벨 더블클릭 → 이름·색상 |
@@ -37,7 +39,7 @@ Node.js 22 이상과 pnpm에서 `pnpm install`, `pnpm build`, `pnpm check`, `pnp
 - [구현과 검증 기록](docs/uct/IMPLEMENTATION_PLAN.md)
 - [사용자 확인 체크리스트](docs/uct/USER_CHECKLIST.md)
 
-현재 버전은 0.1.1입니다. 기존 모든 기능의 모든 분기를 검증한 것은 아니며 검증 범위는 구현 기록에 구분했습니다. Image Copy의 파일 클립보드 기능은 Windows 전용입니다.
+현재 버전은 0.1.12입니다. 기존 모든 기능의 모든 분기를 검증한 것은 아니며 검증 범위는 구현 기록에 구분했습니다. Image Copy의 파일 클립보드 기능은 Windows 전용입니다.
 
 ## 0.1.1 화면과 조작
 

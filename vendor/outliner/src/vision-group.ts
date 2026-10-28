@@ -97,6 +97,7 @@ export class VisionGroups {
  private schedule=()=>{if(!this.frame)this.frame=requestAnimationFrame(()=>{this.frame=0;this.project();});};
  private project(){this.syncNative();}
  private attach(wrapper:HTMLElement){
+  if(!this.p.adapter.canvas)return;
   const c=this.p.adapter.canvas,owner=this,update=c.updateSelection,hit=c.hitTestNode,intersect=c.getIntersectingNodes,drag=c.handleSelectionDrag;
   const hidden=(node:any)=>!owner.visible&&owner.p.state()?.visionGroups?.some(a=>a.id===node.id);
   const selection=function(this:any,fn:()=>void){return update.call(this,()=>{fn();for(const n of this.selection)if(hidden(n))this.selection.delete(n);});};

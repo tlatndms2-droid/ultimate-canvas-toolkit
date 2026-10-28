@@ -82,7 +82,7 @@ export default class CanvasPdfViewcard extends Plugin {
           if(target.closest("input,textarea,[contenteditable=true]"))return;
           if(canvas.selection.size!==1)return;
           const node=canvas.selection.values().next().value;
-          const mounted=node&&this.mounted.get(node);if(!mounted)return;
+          if(node&&!this.mounted.has(node))this.scan();const mounted=node&&this.mounted.get(node);if(!mounted)return;
           event.preventDefault();event.stopPropagation();
           if(!event.repeat){
             if(event.shiftKey){mounted.viewer.exitReading();this.openPopup(mounted.file,mounted.viewer.state.page);}
@@ -159,7 +159,7 @@ export default class CanvasPdfViewcard extends Plugin {
       });
       modal.contentEl.createDiv({cls:"cpv-popup-footer",text:"Enter 또는 Esc로 복귀 · 팝업에서 읽은 페이지는 카드에 반영되지 않습니다."});
     };
-    modal.onClose=()=>{viewer?.destroy();this.popups.delete(modal);};
+    modal.onClose=()=>{viewer?.destroy();window.clearTimeout(this.saveTimer);this.flush();this.popups.delete(modal);};
     this.popups.add(modal);modal.open();
   }
   private persist() {

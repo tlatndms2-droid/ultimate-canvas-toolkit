@@ -31,7 +31,7 @@ export class EditorManager {
     await this.openNode(view, nodes[0]);
   }
 
-  async openNode(view: CanvasViewLike, node: CanvasNodeLike): Promise<void> {
+  async openNode(view: CanvasViewLike, node: CanvasNodeLike): Promise<FloatingEditor | undefined> {
     if (!this.plugin.settings.quickEditorEnabled) {
       new Notice("Canvas Visibility 설정에서 빠른 카드 편집기가 꺼져 있습니다.");
       return;
@@ -45,7 +45,8 @@ export class EditorManager {
     const existing = this.editors.get(key);
     if (existing) {
       existing.activate();
-      return;
+      existing.editor?.getView()?.editor?.focus();
+      return existing;
     }
     const cascadeOffset = (this.editors.size % 8) * 28;
     const editor = new FloatingEditor(
@@ -63,6 +64,7 @@ export class EditorManager {
     this.editors.set(key, editor);
     try {
       await editor.open();
+      return editor;
     } catch (error) {
       if (this.editors.get(key) === editor) this.editors.delete(key);
       const message = error instanceof Error ? error.message : String(error);
@@ -73,6 +75,9 @@ export class EditorManager {
   async close(): Promise<void> {
     await Promise.all([...this.editors.values()].map((editor) => editor.close(true)));
   }
+
+  fromElement(el:Element|null):FloatingEditor|undefined {return [...this.editors.values()].find(e=>!!el&&e.panelEl.contains(el));}
+  refreshAppearance(){for(const editor of this.editors.values())editor.applyAppearance();}
 
   private getEditorKey(target: EditableNodeTarget): string {
     return `${target.canvasPath}\u0000${target.node.id}`;
