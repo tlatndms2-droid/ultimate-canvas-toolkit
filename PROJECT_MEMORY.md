@@ -1,3 +1,14 @@
+## 2026-10-28 — 0.1.12 공개 배포 완료
+
+사용자의 “배포해” 승인으로 기존 배포 금지를 이번 UCT 릴리즈에 한해 해제했습니다.
+- Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.12
+- 코드 커밋: f5724116e56ae49f732350a306aa404df48385b1
+- main.js·styles.css·manifest.json 공개 다운로드와 검증 빌드 일치.
+- 기존 Sandbox의 BRAT 실제 강제 재설치 성공, 활성 버전 0.1.12. main.js·styles.css 바이트 및 manifest 필드 일치.
+- library.json 재설치 전후 바이트 동일, 항목 51개·폴더 82개 유지. Mini 실제 화면 확인, Sandbox 열린 상태.
+- 증거: .validation/release-0.1.12/public-assets.json, brat-proof.json, brat-mini.png
+- 종합 감사의 미검증 범위는 Release 본문에 공개했습니다. 전체 통합 감사 완료를 의미하지 않습니다. 원본 7개 저장소와 실제 작업 Vault는 변경하지 않았습니다.
+
 ## 2026-10-28 Mini 성능 개선 — 로컬 0.1.12 / 배포 금지
 
 화면 밖 항목의 내부 레이아웃 계산을 미루는 CSS containment 적용. 같은 Sandbox 재시작 후 개선 전후 교차3회 중앙값: 500개 목록 생성95.4→36.6ms, 검색26.4→12.1ms, 카드 보기98.0→33.9ms. 기존 자료51개·폴더 보존, 실제500개 선택/스크롤/검색/더블클릭/썸네일 확인, 타입 검사·21검사·빌드 및 설치3파일 일치. 전체 감사 완료는 아님. docs/uct/LOCAL_AUDIT_0.1.12.md 참조. push/Release/BRAT 미실행.
