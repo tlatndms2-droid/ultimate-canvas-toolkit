@@ -1,3 +1,4 @@
+import {paletteSettings} from './performance';
 import {Plugin,PluginSettingTab,Setting,TFile,TFolder,Notice,normalizePath} from 'obsidian';
 import {promises as fs} from 'node:fs';
 import {join} from 'node:path';
@@ -62,7 +63,7 @@ export default class UctPlugin extends Plugin {
     });
     migratePalette(this.library,this.legacyPalette??this.palette.store.data);for(const item of Object.values(this.library.items))repairPortalPresentation(item);this.bindLibrary();
     const palette=this.palette;
-    palette.store.flush=async()=>{const data=structuredClone(palette.store.data);data.items={};data.pendingItemIds=[];data.workspaces={};data.collections={};data.uiState.activeWorkspaceId=null;data.uiState.pendingCanvasWorkspaceCleanup=[];await palette.saveData(data);await this.saveLibrary();};
+    palette.store.flush=async()=>{const data=paletteSettings(palette.store.data);await palette.saveData(data);await this.saveLibrary();};
     palette.store.getCanvasNodeMetadata=(path:string,id:string)=>{const meta=palette.store.data.canvasNodeMetadata[this.spaceKey(path)]?.[id];return meta?{...meta,tags:[]}:undefined;};
     palette.store.setCanvasNodeMetadata=(path:string,id:string,meta:any)=>{palette.store.setMetadataRecord(this.spaceKey(path),id,{...meta,tags:[]},Date.now());palette.store.changed();void this.modules.outliner?.refresh();};
     // Mini snapshots never participate in the old source-to-Palette sync graph.
@@ -79,7 +80,13 @@ export default class UctPlugin extends Plugin {
     this.addCommand({id:'create-caption',name:'선택 카드 아래 캡션 생성',hotkeys:[{modifiers:['Alt'],key:'c'}],checkCallback:(checking)=>{if(!this.canMetadata())return false;if(!checking)this.editCaption();return true;}});
     this.registerEvent(this.app.workspace.on('active-leaf-change',()=>this.spaceChanged()));
     this.registerEvent(this.app.workspace.on('layout-change',()=>{this.addCaptionButtons();this.spaceChanged();}));
-    const observer=new MutationObserver(()=>this.scheduleCaptionButtons());observer.observe(this.app.workspace.containerEl,{childList:true,subtree:true});this.register(()=>observer.disconnect());
+    const observer=new MutationObserver(records=>{if(records.some(record=>{
+      const target=record.target as Element;
+      if(target.closest?.('.uct-mini,.modal-container'))return false;
+      // Palette, settings and Outliner mutations cannot change Canvas captions.
+      if(target.closest?.('.canvas-node'))return [...record.addedNodes,...record.removedNodes].some(n=>!(n instanceof Element&&n.matches('.uct-caption-add')));
+      return [...record.addedNodes].some(n=>n instanceof Element&&!n.matches('.uct-mini,.modal-container')&&(n.matches('.canvas-node')||!!n.querySelector('.canvas-node')));
+    }))this.scheduleCaptionButtons();});observer.observe(this.app.workspace.containerEl,{childList:true,subtree:true});this.register(()=>observer.disconnect());
     this.app.workspace.onLayoutReady(()=>{this.spaceChanged();this.addCaptionButtons();this.reconcileSources();});
     await this.saveLibrary();
   }

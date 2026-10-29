@@ -69,13 +69,14 @@ export class CompositionMode {
    const update=()=>{count.hidden=!this.settings.count;if(this.settings.count)count.setText('공백 제외 '+characterCount(view.editor.getValue()).toLocaleString()+'자');};
    const center=()=>{if(this.settings.scroll!=='typewriter')return;const cm=view.editor.cm;if(cm?.dispatch)cm.dispatch({effects:(require('@codemirror/view').EditorView).scrollIntoView(cm.state.selection.main.head,{y:'center'})});};
    const scroll=view.editor.getScrollInfo();const selections=view.editor.listSelections();
-   const ref=app.workspace.on('editor-change',(_editor,info)=>{if(info===view){update();if(!this.closing)win.requestAnimationFrame(center);}});
+   let updateFrame=0;const scheduleUpdate=()=>{if(updateFrame||this.closing)return;updateFrame=win.requestAnimationFrame(()=>{updateFrame=0;if(abort.signal.aborted)return;update();center();});};abort.signal.addEventListener('abort',()=>win.cancelAnimationFrame(updateFrame),{once:true});
+   const ref=app.workspace.on('editor-change',(_editor,info)=>{if(info===view)scheduleUpdate();});
    const observer=new ResizeObserver(place);observer.observe(overlay);
    this.session={overlay,host,placeholder,view,floating,created,previousLeaf,abort,observer,ref,previousState,scroll};
    const commands=(app as any).commands,original=commands.executeCommand;const isolated=(command:any,...args:any[])=>{if(command.id===this.root.manifest.id+':composition-open'||command.editorCallback||command.editorCheckCallback||command.id.startsWith('editor:'))return original.call(commands,command,...args);return false;};commands.executeCommand=isolated;this.restoreCommands=()=>{if(commands.executeCommand===isolated)commands.executeCommand=original;};
    for(const type of ['keydown','keyup'])host.addEventListener(type,e=>e.stopPropagation(),{signal:abort.signal});
    overlay.addEventListener('keydown',e=>{if(e.isComposing)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();void this.close();}},{capture:true,signal:abort.signal});
-   host.addEventListener('input',update,{signal:abort.signal});place();update();view.editor.focus();view.editor.setSelections(selections);win.requestAnimationFrame(()=>{view.editor.scrollTo(scroll.left,scroll.top);if(this.settings.scroll==='typewriter')center();});
+   host.addEventListener('input',scheduleUpdate,{signal:abort.signal});place();update();view.editor.focus();view.editor.setSelections(selections);win.requestAnimationFrame(()=>{view.editor.scrollTo(scroll.left,scroll.top);if(this.settings.scroll==='typewriter')center();});
   } catch(error){console.error('UCT composition',error);new Notice('컴포지션 화면을 열지 못했습니다. 원래 편집기를 유지합니다.');if(this.session)await this.close();}
   finally{this.opening=false;}
  }
