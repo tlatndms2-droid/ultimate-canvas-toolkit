@@ -36,3 +36,6 @@
 PDF/Portal idle 비용은 기존 측정에서 작아 변경하지 않았음. 대용량 미디어 표지 읽기, 대규모 ZIP 메모리, 장시간 메모리 회수, 실제 Secondbrain 전체 CPU/메모리 전후 비교는 미검증. Mindmap 100ms 폴링은 유지.
 사용 흐름/저장 형식/썸네일 품질을 변경하지 않음. 실제 Secondbrain Vault와 원본7개 저장소는 변경하지 않음.
 증거: .validation/performance-0.1.14/ (로컬).
+
+## 배포 확인
+공개 0.1.14 main.js/manifest.json/styles.css 일치. Sandbox BRAT 재설치 성공, 활성0.1.14, 설치자산 일치, library.json 바이트 보존.

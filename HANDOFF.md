@@ -1,3 +1,13 @@
+## 2026-10-29 — 0.1.14 성능 개선·공개 배포 완료
+
+- Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.14
+- 코드 커밋38a1ada. 저장 전 Mini 그래프 복제 제외, Canvas 캡션 감시 필터, 발표 snapshot 식별, Storage DOM 유지/형식 집계, 컴포지션 갱신 병합.
+- 24테스트/타입 검사/빌드 통과. CDP 기반 실제 Sandbox 화면·조작·같은 Sandbox 재시작 확인. 활성0.1.14.
+- 공개3파일 일치, BRAT 재설치 성공, 설치 파일 일치, library.json 바이트 보존.
+- 측정 조건·수치·미검증 영역: docs/uct/PERFORMANCE_0.1.14.md. 전체 플러그인 개선율이나 종합 감사 완료로 해석하지 말 것.
+- 실제 Secondbrain Vault와 원본7개 저장소 변경 없음. Sandbox열림: work/UCT-Integration-Sandbox, profile work/UCT-Integration-Profile, CDP19768 (재사용 시 재확인).
+- 증거: .validation/performance-0.1.14/. 사용자 기존 output/ 미추적 자료 보존.
+
 ## 2026-10-29 — 0.1.13 공개 배포 완료
 
 사용자 배포 승인. Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.13
