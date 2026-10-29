@@ -1,3 +1,13 @@
+## 2026-10-29 — 0.1.13 공개 배포 완료
+
+사용자 배포 승인. Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.13
+- 소스 커밋 e647ca0. Outliner HTML 사본 제외, 불필요한 저장/초기 읽기 절감, 정렬과 전환 갱신 개선.
+- 22검사 및 기존 동일 빌드의 타입 검사/빌드/Sandbox UI·재시작 검증 재사용.
+- 공개3파일 바이트 일치. 기존 Sandbox BRAT 실제 재설치 성공, 활성0.1.13, 설치파일/manifest 일치 및 library.json 보존.
+- Secondbrain에는 앞선 로컬 파일 설치가 있으나 이번 배포에서 재시작/버전 표시 재확인은 수행하지 않음. Sandbox 확인을 실제 Vault 버전 증거로 혼동하지 말 것.
+- 알려진 제한: 로딩 중 이전 목록 잠깐 표시, 일부 포탈 이름 HTML 표시. 전체 통합 감사 완료 아님.
+- 증거: .validation/release-0.1.13/ 및 .validation/outliner-real-20261028/.
+
 ## 2026-10-28 — 0.1.12 공개 배포 완료
 
 사용자의 “배포해” 승인으로 기존 배포 금지를 이번 UCT 릴리즈에 한해 해제했습니다.
