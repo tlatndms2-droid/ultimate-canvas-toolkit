@@ -1,3 +1,4 @@
+import {outlinerSnapshot} from './snapshot';
 export interface CanvasNode {id:string;type:string;x:number;y:number;width:number;height:number;text?:string;file?:string;url?:string;label?:string;subpath?:string;[key:string]:unknown}
 export interface CanvasDocument {canvasOutliner?:{version:1;id:string};nodes:CanvasNode[];edges:unknown[]}
 export interface Ref {kind:'node'|'collection';id:string}
@@ -21,7 +22,7 @@ export function sync(state:CanvasState,doc:CanvasDocument,now=Date.now()){
   const initial=state.snapshot===null;let next=Math.max(-1,...Object.values(state.meta).map(x=>x.order))+1;let changed=false;
   for(const n of doc.nodes){const sig=signature(n);const m=state.meta[n.id];if(!m){state.meta[n.id]={created:initial?null:now,updated:initial?null:now,signature:sig,order:next++};changed=true;}else if(m.signature!==sig){m.signature=sig;m.updated=now;changed=true;}}
   // Deletion references survive only while this Canvas remains open, to support native Undo.
-  const previous=state.snapshot;state.snapshot=clone(doc);const refsChanged=normalizeCollectionRefs(state,doc);return changed||refsChanged||JSON.stringify(previous)!==JSON.stringify(doc);
+  doc=outlinerSnapshot(doc);const previous=state.snapshot;state.snapshot=clone(doc);const refsChanged=normalizeCollectionRefs(state,doc);return changed||refsChanged||JSON.stringify(previous)!==JSON.stringify(doc);
 }
 export function purgeMissing(s:CanvasState){const ids=new Set(s.snapshot?.nodes.map(x=>x.id)||[]);s.registered=s.registered.filter(x=>ids.has(x));for(const c of s.collections)c.refs=c.refs.filter(x=>x.kind!=='node'||ids.has(x.id));s.steps=s.steps.filter(x=>x.kind!=='node'||ids.has(x.target));for(const id of Object.keys(s.meta))if(!ids.has(id))delete s.meta[id];if(!s.steps.some(x=>x.id===s.current))s.current=s.steps[0]?.id??null;}
 export function hierarchy(doc:CanvasDocument,s:CanvasState){
@@ -34,7 +35,7 @@ export function hierarchy(doc:CanvasDocument,s:CanvasState){
 }
 export function nodeName(n:CanvasNode,s:CanvasState){return s.meta[n.id]?.name||(n.type==='group'?n.label:(n.text||'').split(/\r?\n/).find(x=>x.trim())?.replace(/^#+\s*/,''))||n.file?.split('/').pop()||n.url||'Item';}
 export function sorted(nodes:CanvasNode[],s:CanvasState,settings:Settings,parent='root'){
-  if(settings.sort==='custom'){const order=s.custom[parent]??[];return [...nodes].sort((a,b)=>(order.indexOf(a.id)<0?1e9:order.indexOf(a.id))-(order.indexOf(b.id)<0?1e9:order.indexOf(b.id)));}
+  if(settings.sort==='custom'){const order=s.custom[parent]??[];const index=new Map<string,number>();order.forEach((id,i)=>{if(!index.has(id))index.set(id,i);});return [...nodes].sort((a,b)=>(index.get(a.id)??1e9)-(index.get(b.id)??1e9));}
   const order=s.custom[parent]??[];const index=new Map(order.map((x,i)=>[x,i]));
   return [...nodes].sort((a,b)=>{let v=0;if(settings.sort==='name')v=nodeName(a,s).localeCompare(nodeName(b,s),'ko');else if(settings.sort==='size')v=area(a)-area(b);else{const x=s.meta[a.id]?.[settings.sort as 'created'|'updated']??null,y=s.meta[b.id]?.[settings.sort as 'created'|'updated']??null;if(x===null&&y!==null)return 1;if(y===null&&x!==null)return -1;v=(x??0)-(y??0);}return (settings.descending?-v:v)||a.id.localeCompare(b.id);});
 }

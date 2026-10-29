@@ -85,7 +85,7 @@ export default class UctPlugin extends Plugin {
   }
   private async loadFeature(name:string,Constructor:any,oldId:string,configure?:(module:any)=>void){
     const dir=this.rootDir+'/modules/'+name;await fs.mkdir(join(this.basePath,dir),{recursive:true});
-    const file=dir+'/data.json';if(!(await this.readJSON(file))){const old=await this.readJSON(this.app.vault.configDir+'/plugins/'+oldId+'/data.json');if(old)await this.writeJSON(file,old);}
+    const file=dir+'/data.json';if(!(await fs.stat(join(this.basePath,file)).then(()=>true,error=>{if(error.code==='ENOENT')return false;throw error;}))){const old=await this.readJSON(this.app.vault.configDir+'/plugins/'+oldId+'/data.json');if(old)await this.writeJSON(file,old);}
     const module=new Constructor(this.app,{...this.manifest,id:this.manifest.id+'-'+name,name:'UCT · '+name,dir});this.modules[name]=module;
     module.loadData=async()=>{const value=await this.readJSON(file);if(name==='palette')this.legacyPalette=value;return value;};module.saveData=(data:any)=>this.writeJSON(file,data);
     module.addSettingTab=(tab:any)=>{if(name!=='palette'&&name!=='editor')this.tabs.push({name,tab});};
