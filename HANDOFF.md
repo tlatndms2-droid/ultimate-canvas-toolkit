@@ -1,3 +1,12 @@
+## 2026-11-04 — 0.1.18 공개 배포·BRAT 재시작 확인 완료
+
+- 사용자 배포 승인. Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.18 . 소스 커밋 033bb8e, tag 0.1.18. 공개 main.js/manifest.json/styles.css 및 버전 ZIP 다운로드 해시 일치.
+- 기존 245검사/TypeScript/빌드와 복사본2 실제 기능·재시작 근거 재사용. 추가 격리 Sandbox에서 Collect 수집, Mini 카드/목록 클릭과 썸네일 DOM 재사용, 검색 확인.
+- BRAT2.2.0 실제 강제 재설치 성공. 같은 Sandbox 재시작 후 Obsidian1.15.0/UCT0.1.18/Outliner ready·corrupt=false, library 보존/pending0/실제 Mini 화면 확인. JS/CSS는 공개판 SHA256 일치. manifest는 BRAT 공백 재직렬화만 달라 JSON 필드 일치 확인.
+- 공개 배포가 전체 성능 목표 달성을 뜻하지 않는다. 남은 목표와 측정 범위: docs/uct/PERFORMANCE_0.1.18_20261104.md. Outliner 새 기록 형식의 구버전 자동 호환 제한은 Release 본문에 명시.
+- 열린 검수 Vault: work/UCT-Release-0.1.18-Sandbox, 전용 profile C:/Users/tlatn/AppData/Local/UCT-Release-018-Profile, CDP19852. 재사용 시 새 page와 실제 basePath 확인. .validation/release-0.1.18/에 공개·BRAT·재시작 증거.
+- 초기 기존 Sandbox 연결 중단과 새 Sandbox의 BRAT 시작 시0.1.14 복구를 확인해 최신 검수는 위 새 환경에서 수행했다. 자동 업데이트 설정은 최종 복구. 원본 Secondbrain과 Canvas Drawing은 변경하지 않았다.
+
 ## 2026-10-29 — 0.1.14 성능 개선·공개 배포 완료
 
 - Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.14
