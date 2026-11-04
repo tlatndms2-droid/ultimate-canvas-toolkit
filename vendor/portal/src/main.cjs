@@ -2,6 +2,7 @@ const { Plugin, PluginSettingTab, Setting, Modal, Notice, setIcon } = require('o
 const M = require("./model.cjs");
 const B = require("./backup.cjs");
 const S = require("./safety.cjs");
+const {writeAddition}=require('./addition-save.cjs');
 const historyGraph = data => ({...M.graph(data), ...(data.cpLifecycle?{cpLifecycle:data.cpLifecycle}:{})});
 const canonical = value => JSON.stringify(value,(_,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
 
@@ -300,8 +301,7 @@ module.exports = class CanvasPortal extends Plugin {
   flushEditors(s){for(const n of s.c.nodes.values()){const child=n.child;if(!child)continue;child.requestSave?.cancel?.();child.requestSaveFolds?.cancel?.();if(M.ref(n.getData())?.role!=='exit'&&child.editMode&&child.editor)child.save(child.editor.getValue(),true);child.requestSave?.cancel?.();child.requestSaveFolds?.cancel?.();}}
   applyColor() { for (const s of this.sessions.values()) s.c.wrapperEl.style.setProperty('--cp-glow', this.settings.glowColor); }
   discover() {
-    for (const leaf of this.app.workspace.getLeavesOfType('canvas')) {
-      const v = leaf.view;
+    for (const v of this.uctCanvasViews?.() ?? this.app.workspace.getLeavesOfType('canvas').map(leaf=>leaf.view)) {
       if (!v.canvas || !v.file || this.sessions.has(v)) continue;
       try { this.attach(v); } catch (e) { this.notifyError(e); }
     }
@@ -326,6 +326,7 @@ module.exports = class CanvasPortal extends Plugin {
       object[key] = factory(original); s.undo.push(() => { if (had) object[key] = original; else delete object[key]; });
     };
     replace(v,'save',original=>async(...args)=>{await s.migrationReady;return original.apply(v,args);});
+    replace(v,'writeData',original=>(...args)=>writeAddition(v,original,args,!!s.additionWrite&&args[0]?.path===s.path,error=>this.notifyError(error)));
     replace(c,'markViewportChanged',original=>(...args)=>{const result=original.apply(c,args);this.requestPositionSave(s);return result;});
     replace(v, 'getViewData', original => () => {
       if (s.switching) return JSON.stringify(s.root);
@@ -378,8 +379,11 @@ module.exports = class CanvasPortal extends Plugin {
       this.askDelete(s,entries.map(n=>M.ref(n).id),ordinary);
     });
     replace(c, 'getSelectionData', original => (...args) => {
-      this.capture(s);
       const d = original.apply(c, args), blocked = new Set(d.nodes.filter(n => M.ref(n)?.role==='exit').map(n => n.id));
+      // Ordinary selections are already read from live nodes by Canvas. Only
+      // portal transfers need a freshly captured registry; menu builders may
+      // request this ordinary selection repeatedly without changing any data.
+      if(d.nodes.some(n=>M.ref(n)?.role==='entry'))this.capture(s);
       if (blocked.size) {
         d.nodes = d.nodes.filter(n => !blocked.has(n.id)); d.edges = d.edges.filter(e => !blocked.has(e.fromNode) && !blocked.has(e.toNode));
         if (d.nodes.length) d.center = {
@@ -627,6 +631,26 @@ module.exports = class CanvasPortal extends Plugin {
       await this.commitRoot(s,root,[entryId]);new Notice('포탈을 만들었습니다. Ctrl+Enter로 입장하세요.');
     } catch (e) { this.notifyError(e); } finally { s.busy = false; }
   }
+  async commitAddition(s,root,selected=[],save=true,onApplied){
+    M.validate(root);
+    const previous=s.root,delta=require('./addition.cjs').addition(this.currentData(s),M.space(root,s.current));
+    this.rememberHistory(s);
+    const history={data:[...s.c.history.data],current:s.c.history.current},selection=[...s.c.selection].map(n=>n.id),switching=s.switching,oldNodes=[...s.c.nodes.keys()],oldEdges=[...s.c.edges.keys()];
+    // Import only new cards/connections. In particular, leave existing embeds
+    // and their DOM/media/editor instances mounted.
+    try{
+      s.switching=true;s.c.requestPushHistory?.cancel?.();s.root=root;
+      s.c.importData(M.clone(delta),false);
+      const actual=s.c.getData(),ids=new Set(actual.nodes.map(n=>n.id)),edges=new Set(actual.edges.map(e=>e.id));
+      if([...oldNodes,...delta.nodes.map(n=>n.id)].some(id=>!ids.has(id))||[...oldEdges,...delta.edges.map(e=>e.id)].some(id=>!edges.has(id)))throw Error('Canvas addition was incomplete');
+      s.c.data={...M.space(root,s.current),nodes:actual.nodes,edges:actual.edges};
+      s.c.requestPushHistory?.cancel?.();s.c.pushHistory(M.graph(s.c.getData()));s.c.deselectAll();
+      for(const id of selected){const n=s.c.nodes.get(id);if(n)s.c.select(n);}
+    }catch(error){
+      s.root=previous;this.show(s,this.displayData(s));s.c.history.data=history.data;s.c.history.current=history.current;s.c.updateHistoryUI();s.c.deselectAll();for(const id of selection){const n=s.c.nodes.get(id);if(n)s.c.select(n);}throw error;
+    }finally{s.switching=switching;}
+    this.decorate(s);this.queue(s);onApplied?.();if(save){const previous=s.additionWrite;s.additionWrite=true;try{await s.v.save();}finally{s.additionWrite=previous;}}
+  }
   async commitRoot(s,root,selected=[],save=true){
     M.validate(root);this.rememberHistory(s);
     for(const [id,p] of Object.entries(s.root.canvasPortal?.portals||{}))if(!root.canvasPortal.portals[id])s.archives.set(id,M.clone(p));
@@ -669,21 +693,22 @@ module.exports = class CanvasPortal extends Plugin {
       if(!this.currentData(s).nodes.some(n=>M.ref(n)?.id===id&&M.ref(n)?.role==='entry'))throw Error('현재 공간의 입장 카드가 아닙니다.');
       if(p.type==='link'){await this.enterLink(s,p);return;}
       await s.v.save();
+      const savedRoot=JSON.stringify(s.root);
       this.rememberHistory(s);
       s.stack.push({parentId:s.current});s.current = id; this.show(s, p.graph); this.decorate(s);
       this.selectLeftmostCard(s);s.c.zoomToFit();
-      s.c.wrapperEl.focus(); await s.v.save();
+      s.c.wrapperEl.focus();this.capture(s);if(JSON.stringify(s.root)!==savedRoot)await s.v.save();
     } catch (e) { this.notifyError(e); } finally { s.busy = false; }
   }
   async leave(s) {
     if (s.busy || !s.current) return; s.busy = true;
     try {
       const p=s.root.canvasPortal.portals[s.current],entryId=p.entryId;
-      this.flushEditors(s);this.capture(s);await s.v.save();this.rememberHistory(s);s.current=s.stack.pop()?.parentId??p.parentId??null;this.show(s,this.displayData(s));this.decorate(s);
+      this.flushEditors(s);this.capture(s);await s.v.save();const savedRoot=JSON.stringify(s.root);this.rememberHistory(s);s.current=s.stack.pop()?.parentId??p.parentId??null;this.show(s,this.displayData(s));this.decorate(s);
       const entry = s.c.nodes.get(entryId);
       if (!entry) throw Error('돌아갈 입장 포탈 카드를 찾을 수 없습니다.');
       s.c.selectOnly(entry); s.c.zoomToSelection();
-      s.c.wrapperEl.focus(); await s.v.save();
+      s.c.wrapperEl.focus();this.capture(s);if(JSON.stringify(s.root)!==savedRoot)await s.v.save();
     } catch (e) { this.notifyError(e); } finally { s.busy = false; }
   }
   leaveActive(){const s=this.active();if(s?.preview)return;if(s?.current)this.leave(s);else if(s?.linkBack)this.leaveLink(s);}

@@ -2,7 +2,9 @@ import type {CanvasData,Card} from './layout';
 
 /** Multi-source distance determines scope; a stable forest moves each node at most once. */
 export function arrangeSelection(input:CanvasData,selected:string[],gap:number,depth=1,range=3):CanvasData{
- let result=input;
+ // Nested card/portal metadata stays detached from the caller. Subsequent
+ // passes only change x/y, so they need new card records, not deep graph copies.
+ let result=structuredClone(input);
  // A moved parent can change whether a later sibling block is near it. Settle that
  // classification before applying any positions to Canvas (one Undo transaction).
  const seen=new Map<string,CanvasData>();
@@ -26,7 +28,7 @@ function arrangePass(input:CanvasData,selected:string[],gap:number,depth:number,
  for(const edge of input.edges){if(!valid.has(edge.fromNode)||!valid.has(edge.toNode)||edge.fromNode===edge.toNode)continue;for(const [a,b] of [[edge.fromNode,edge.toNode],[edge.toNode,edge.fromNode]]){if(!adjacency.has(a))adjacency.set(a,new Set());adjacency.get(a)!.add(b);}}
  const distance=new Map(roots.map(id=>[id,0]));const queue=[...roots];
  for(let i=0;i<queue.length;i++){const id=queue[i],d=distance.get(id)!;if(d>=steps)continue;for(const next of adjacency.get(id)||[]){if(distance.has(next))continue;distance.set(next,d+1);queue.push(next);}}
- let result=structuredClone(input);const visited=new Set<string>();
+ let result={...input,nodes:input.nodes.map(node=>({...node}))};const visited=new Set<string>();
  for(const root of roots){if(visited.has(root))continue;visited.add(root);const parents=[root];
   for(let i=0;i<parents.length;i++){const parent=parents[i],children=new Set<string>();
    for(const next of adjacency.get(parent)||[]){if(!distance.has(next)||visited.has(next))continue;visited.add(next);children.add(next);parents.push(next);}

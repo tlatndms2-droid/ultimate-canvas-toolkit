@@ -1,4 +1,4 @@
-import {outlinerSnapshot} from './snapshot';
+import {outlinerSnapshot,ownSnapshot} from './snapshot';
 export interface CanvasNode {id:string;type:string;x:number;y:number;width:number;height:number;text?:string;file?:string;url?:string;label?:string;subpath?:string;[key:string]:unknown}
 export interface CanvasDocument {canvasOutliner?:{version:1;id:string};nodes:CanvasNode[];edges:unknown[]}
 export interface Ref {kind:'node'|'collection';id:string}
@@ -14,15 +14,25 @@ export const defaultSettings:Settings={presentationHideSidebars:true,sort:'custo
 export const emptyCanvas=():CanvasState=>({visionGroups:[],registered:[],collections:[],meta:{},custom:{},steps:[],areas:[],current:null,presentation:false,snapshot:null});
 export const emptyStore=():Store=>({version:1,canvases:{},settings:{...defaultSettings}});
 export const clone=<T>(x:T):T=>JSON.parse(JSON.stringify(x));
+// Outliner Undo restores registration/order/metadata, never the Canvas graph.
+// sync replaces its detached snapshot wholesale; history can retain that read-only
+// reference instead of copying every hidden Portal graph for each list action.
+export function copyOutlinerHistory(state:CanvasState):CanvasState {
+ return {...clone({...state,snapshot:null}),snapshot:state.snapshot};
+}
 export const uid=()=>crypto.randomUUID();
 export function contains(a:Pick<CanvasNode,'x'|'y'|'width'|'height'>,b:Pick<CanvasNode,'x'|'y'|'width'|'height'>){return b.x>=a.x&&b.y>=a.y&&b.x+b.width<=a.x+a.width&&b.y+b.height<=a.y+a.height;}
 export const area=(n:{width:number;height:number})=>n.width*n.height;
 export function signature(n:CanvasNode){return JSON.stringify([n.type,n.text,n.file,n.url,n.label,n.subpath]);}
-export function sync(state:CanvasState,doc:CanvasDocument,now=Date.now()){
+export function sync(state:CanvasState,doc:CanvasDocument,now=Date.now(),serializedSnapshot?:string){
   const initial=state.snapshot===null;let next=Math.max(-1,...Object.values(state.meta).map(x=>x.order))+1;let changed=false;
   for(const n of doc.nodes){const sig=signature(n);const m=state.meta[n.id];if(!m){state.meta[n.id]={created:initial?null:now,updated:initial?null:now,signature:sig,order:next++};changed=true;}else if(m.signature!==sig){m.signature=sig;m.updated=now;changed=true;}}
   // Deletion references survive only while this Canvas remains open, to support native Undo.
-  doc=outlinerSnapshot(doc);const previous=state.snapshot;state.snapshot=clone(doc);const refsChanged=normalizeCollectionRefs(state,doc);return changed||refsChanged||JSON.stringify(previous)!==JSON.stringify(doc);
+  // refresh already serializes its stripped document to detect revisions. Reuse
+  // those exact bytes within the same synchronous call, not a previous revision.
+  doc=outlinerSnapshot(doc);const raw=serializedSnapshot??JSON.stringify(doc),snapshotChanged=changed||JSON.stringify(state.snapshot)!==raw;
+  if(snapshotChanged)state.snapshot=ownSnapshot(JSON.parse(raw));
+  const refsChanged=normalizeCollectionRefs(state,doc);return changed||refsChanged||snapshotChanged;
 }
 export function purgeMissing(s:CanvasState){const ids=new Set(s.snapshot?.nodes.map(x=>x.id)||[]);s.registered=s.registered.filter(x=>ids.has(x));for(const c of s.collections)c.refs=c.refs.filter(x=>x.kind!=='node'||ids.has(x.id));s.steps=s.steps.filter(x=>x.kind!=='node'||ids.has(x.target));for(const id of Object.keys(s.meta))if(!ids.has(id))delete s.meta[id];if(!s.steps.some(x=>x.id===s.current))s.current=s.steps[0]?.id??null;}
 export function hierarchy(doc:CanvasDocument,s:CanvasState){

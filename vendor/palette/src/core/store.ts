@@ -497,7 +497,7 @@ export class PaletteStore {
     this.changed();
   }
 
-  getCanvasNodeMetadata(canvasPath: string, nodeId: string): PaletteMetadata | undefined {
+  getCanvasNodeMetadata(canvasPath: string, nodeId: string, _view?: unknown): PaletteMetadata | undefined {
     return this.data.canvasNodeMetadata[canvasPath]?.[nodeId];
   }
 

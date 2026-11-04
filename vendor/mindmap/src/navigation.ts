@@ -6,13 +6,14 @@ export function nearestCard(data:CanvasData,id:string,direction:Direction):Card|
  const a=data.nodes.find(n=>n.id===id);if(!a)return null;
  const horizontal=direction==='left'||direction==='right',positive=direction==='right'||direction==='down';
  const ax=a.x+a.width/2,ay=a.y+a.height/2;
- const candidates=data.nodes.filter(b=>b.id!==id&&b.type!=='group'&&(positive?(horizontal?b.x+b.width/2>ax:b.y+b.height/2>ay):(horizontal?b.x+b.width/2<ax:b.y+b.height/2<ay))).map(b=>{
+ let best:{b:Card;direct:boolean;distance:number;axis:number}|null=null;
+ for(const b of data.nodes){if(b.id===id||b.type==='group'||!(positive?(horizontal?b.x+b.width/2>ax:b.y+b.height/2>ay):(horizontal?b.x+b.width/2<ax:b.y+b.height/2<ay)))continue;
   const dx=Math.max(0,b.x-a.x-a.width,a.x-b.x-b.width),dy=Math.max(0,b.y-a.y-a.height,a.y-b.y-b.height);
   const direct=horizontal ? b.y<a.y+a.height&&b.y+b.height>a.y : b.x<a.x+a.width&&b.x+b.width>a.x;
-  return {b,direct,distance:Math.hypot(dx,dy),axis:horizontal?Math.abs(b.y+b.height/2-ay):Math.abs(b.x+b.width/2-ax)};
- });
- candidates.sort((a,b)=>Number(b.direct)-Number(a.direct)||a.distance-b.distance||a.axis-b.axis||a.b.id.localeCompare(b.b.id));
- return candidates[0]?.b||null;
+  const candidate={b,direct,distance:Math.hypot(dx,dy),axis:horizontal?Math.abs(b.y+b.height/2-ay):Math.abs(b.x+b.width/2-ax)};
+  if(!best||(Number(best.direct)-Number(candidate.direct)||candidate.distance-best.distance||candidate.axis-best.axis||candidate.b.id.localeCompare(best.b.id))<0)best=candidate;
+ }
+ return best?.b||null;
 }
 interface Host {app:App;settings:{panDuration:number;panStep?:number;zoomStepPercent?:number};register(cb:()=>void):void}
 export class NavigationController {

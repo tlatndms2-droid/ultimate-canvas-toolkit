@@ -1,4 +1,5 @@
 import { App, Component, MarkdownRenderer, TFile } from "obsidian";
+import {renderSnapshotMarkdown} from './deferred-embeds';
 import type { CanvasEdgeSnapshot, CanvasNodeSnapshot, CardFace, GroupSnapshot, PaletteItem } from "../core/types";
 import { IMAGE_EXTENSIONS } from "../core/media";
 
@@ -39,7 +40,7 @@ export class PreviewService {
       return;
     }
     if (item.type === "group" && item.group) {
-      await this.renderCanvasGroup(parent, item.group, item.origin.canvasPath ?? "", compact);
+      if (!await this.renderCanvasGroup(parent, item.group, item.origin.canvasPath ?? "", compact)) return;
       if (item.cutFromCanvas) {
         const details = parent.createDiv({ cls: "cp-cut-collection__details" });
         details.createSpan({ text: `${item.group.nodes.length}개 항목 · 내부 연결 ${item.group.edges.length}개` });
@@ -79,28 +80,50 @@ export class PreviewService {
   private youTubeVideoId(url: string): string | null {
     try {
       const parsed = new URL(url); const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
-      const value = host === "youtu.be" ? parsed.pathname.slice(1) : host.endsWith("youtube.com") ? parsed.searchParams.get("v") ?? (/^\/(?:embed|shorts|live)\/([^/?#]+)/.exec(parsed.pathname)?.[1] ?? null) : null;
+      if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
+      const youtube = host === 'youtube.com' || host.endsWith('.youtube.com') || host === 'youtube-nocookie.com' || host.endsWith('.youtube-nocookie.com');
+      const value = host === "youtu.be" ? parsed.pathname.slice(1) : youtube ? parsed.searchParams.get("v") ?? (/^\/(?:embed|shorts|live)\/([^/?#]+)/.exec(parsed.pathname)?.[1] ?? null) : null;
       return value && /^[A-Za-z0-9_-]{11}$/.test(value) ? value : null;
     } catch { return null; }
   }
 
-  private async renderCanvasGroup(parent: HTMLElement, snapshot: GroupSnapshot, sourcePath: string, compact: boolean): Promise<void> {
+  private async renderCanvasGroup(parent: HTMLElement, snapshot: GroupSnapshot, sourcePath: string, compact: boolean): Promise<boolean> {
     const width = Math.max(snapshot.bounds.width, 1);
     const height = Math.max(snapshot.bounds.height, 1);
     const viewport = parent.createDiv({ cls: `cp-canvas-snapshot${compact ? " is-compact" : " is-large"}` });
+    // This owned viewport has no border; its observed border box is the
+    // previous client box, including any theme padding but no layout read.
+    Object.assign(viewport.style,{borderWidth:'0px',writingMode:'horizontal-tb'});
     viewport.style.setProperty("--cp-canvas-aspect", `${width} / ${height}`);
     const stage = viewport.createDiv({ cls: "cp-canvas-snapshot__stage" });
-    const updateScale = (): void => {
-      if (!viewport.isConnected) return;
-      const scale = Math.min(viewport.clientWidth / width, viewport.clientHeight / height)*.94;
-      Object.assign(stage.style,{inset:'auto',width:width+'px',height:height+'px',left:(viewport.clientWidth-width*scale)/2+'px',top:(viewport.clientHeight-height*scale)/2+'px',transformOrigin:'0 0',transform:`scale(${Math.max(scale,.001)})`});
-      viewport.style.setProperty('--cp-canvas-scale','1');
+    const connectedAtStart = parent.isConnected;
+    let cancelled = false;
+    // Detached construction is valid; unload or replacing this render is not.
+    const active = () => !cancelled && parent.contains(viewport) && (!connectedAtStart || parent.isConnected);
+    Object.assign(stage.style,{inset:'auto',width:width+'px',height:height+'px',transformOrigin:'0 0'});
+    viewport.style.setProperty('--cp-canvas-scale','1');
+    let lastWidth=-1,lastHeight=-1;
+    const updateScale = (entry:ResizeObserverEntry): void => {
+      if (!active() || !viewport.isConnected) return;
+      const measured=entry.borderBoxSize?.[0];
+      let boxWidth:number,boxHeight:number;
+      if(measured&&Number.isFinite(measured.inlineSize)&&Number.isFinite(measured.blockSize)){
+        boxWidth=Math.round(measured.inlineSize);boxHeight=Math.round(measured.blockSize);
+      }else{
+        // Older observers without border-box measurements retain the old fit.
+        const css=window.getComputedStyle(viewport),px=(value:string)=>parseFloat(value)||0;
+        boxWidth=Math.round(entry.contentRect.width+px(css.paddingLeft)+px(css.paddingRight));
+        boxHeight=Math.round(entry.contentRect.height+px(css.paddingTop)+px(css.paddingBottom));
+      }
+      if(boxWidth===lastWidth&&boxHeight===lastHeight)return;
+      lastWidth=boxWidth;lastHeight=boxHeight;
+      const scale = Math.min(boxWidth / width, boxHeight / height)*.94;
+      Object.assign(stage.style,{left:(boxWidth-width*scale)/2+'px',top:(boxHeight-height*scale)/2+'px',transform:`scale(${Math.max(scale,.001)})`});
     };
-    const observer = new ResizeObserver(updateScale);
-    this.component.register(() => observer.disconnect());
+    const observer = new ResizeObserver(entries=>{const entry=entries.find(e=>e.target===viewport);if(entry)updateScale(entry);});
+    this.component.register(() => { cancelled = true; observer.disconnect(); });
     this.groupObservers.set(parent, observer);
-    observer.observe(viewport);
-    window.requestAnimationFrame(updateScale);
+    observer.observe(viewport,{box:'border-box'});
 
     for (const node of snapshot.nodes.filter((candidate) => candidate.type === "group")) {
       const frame = stage.createDiv({ cls: "cp-canvas-snapshot__group" });
@@ -117,6 +140,7 @@ export class PreviewService {
     for (const edge of snapshot.edges) this.renderCanvasEdge(svg, edge, snapshot.nodes, width, height);
 
     for (const node of snapshot.nodes.filter((candidate) => candidate.type !== "group")) {
+      if (!active()) return false;
       const card = stage.createDiv({ cls: `cp-canvas-snapshot__node cp-canvas-snapshot__node--${node.type}` });
       this.positionSnapshotNode(card, node, width, height);
       card.style.setProperty("--cp-canvas-color", this.canvasColor(node.color));
@@ -126,15 +150,25 @@ export class PreviewService {
         card.addClass("cp-canvas-snapshot__node--image");
         content.createEl("img", { attr: { src: this.app.vault.getResourcePath(file), alt: file.basename, draggable: "false" } });
       } else if (node.type === "text") {
-        await MarkdownRenderer.render(this.app, node.text ?? "", content, sourcePath, this.component);
+        await renderSnapshotMarkdown(this.app, node.text ?? "", content, sourcePath, this.component,compact);
       } else if (node.type === "link") {
-        content.setText(this.linkLabel(node.url));
+        const videoId = this.youTubeVideoId(node.url ?? '');
+        if (videoId) {
+          card.addClass('cp-canvas-snapshot__node--youtube');
+          const image = content.createEl('img', { attr: { src: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`, alt: 'YouTube', draggable: 'false', loading: 'lazy', decoding: 'async', referrerpolicy: 'no-referrer' } });
+          const unavailable = () => { if (!active()) return; image.remove(); card.removeClass('cp-canvas-snapshot__node--youtube'); content.setText(this.linkLabel(node.url)); };
+          image.addEventListener('error', unavailable, { once: true });
+          this.component.register(() => { image.removeEventListener('error', unavailable); image.removeAttribute('src'); });
+        } else content.setText(this.linkLabel(node.url));
       } else if(file instanceof TFile&&file.extension.toLowerCase()==='pdf'&&this.pdfPool){
-        const entry=this.pdfPool.acquire(file);this.component.register(entry.release);const pdf=await entry.document;if(!parent.isConnected)return;const page=await pdf.getPage(1),base=page.getViewport({scale:1}),viewport=page.getViewport({scale:Math.max(.05,Math.min((node.width-32)/base.width,(node.height-32)/base.height))});const canvas=content.createEl('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);const task=page.render({canvasContext:canvas.getContext('2d'),viewport});this.component.register(()=>task.cancel());try{await task.promise;}catch(error:any){if(error?.name!=='RenderingCancelledException')throw error;}
+        const entry=this.pdfPool.acquire(file);this.component.register(entry.release);const pdf=await entry.document;if(!active())return false;const page=await pdf.getPage(1);if(!active())return false;const base=page.getViewport({scale:1}),viewport=page.getViewport({scale:Math.max(.05,Math.min((node.width-32)/base.width,(node.height-32)/base.height))});const canvas=content.createEl('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);const task=page.render({canvasContext:canvas.getContext('2d'),viewport});this.component.register(()=>task.cancel());try{await task.promise;}catch(error:any){if(error?.name!=='RenderingCancelledException')throw error;}
       } else if (file instanceof TFile && file.extension.toLowerCase() === "md") {
-        await MarkdownRenderer.render(this.app, await this.app.vault.cachedRead(file), content, file.path, this.component);
+        const source = await this.app.vault.cachedRead(file);
+        if (!active()) return false;
+        await renderSnapshotMarkdown(this.app, source, content, file.path, this.component,compact);
       } else content.setText(node.label ?? node.file?.split("/").pop() ?? "File");
     }
+    return active();
   }
 
   private linkLabel(url: string | undefined): string { try { return new URL(url ?? "").hostname || url || "Link"; } catch { return url || "Link"; } }

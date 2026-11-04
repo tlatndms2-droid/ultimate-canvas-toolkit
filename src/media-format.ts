@@ -12,8 +12,12 @@ export function albumArt(buffer:ArrayBuffer):{data:Uint8Array;mime:string}|null 
  try {
   if(ascii(0,3)==='ID3'&&b.length>=10){const version=b[3];if(version!==3&&version!==4)return null;const end=Math.min(b.length,10+sync(6));let p=10;if(b[5]&0x40)p+=version===4?sync(p):4+u32(p);
    while(p+10<=end){const id=ascii(p,4),len=version===4?sync(p+4):u32(p+4);if(!len||p+10+len>end)break;if(id==='APIC'){let q=p+10;const enc=b[q++],mimeEnd=b.indexOf(0,q);if(mimeEnd<0||mimeEnd>=p+10+len)return null;const mime=ascii(q,mimeEnd-q);q=mimeEnd+2;if(enc===0||enc===3){while(q<p+10+len&&b[q])q++;q++;}else{while(q+1<p+10+len&&(b[q]||b[q+1]))q+=2;q+=2;}return q<p+10+len?{data:b.slice(q,p+10+len),mime}:null;}p+=10+len;}
+   return null;
   }
-  if(ascii(0,4)==='fLaC'){let p=4;while(p+4<=b.length){const kind=b[p]&127,last=!!(b[p]&128),len=(b[p+1]<<16)|(b[p+2]<<8)|b[p+3];if(p+4+len>b.length)break;if(kind===6)return picture(p+4,p+4+len);p+=4+len;if(last)break;}}
+  if(ascii(0,4)==='fLaC'){let p=4;while(p+4<=b.length){const kind=b[p]&127,last=!!(b[p]&128),len=(b[p+1]<<16)|(b[p+2]<<8)|b[p+3];if(p+4+len>b.length)break;if(kind===6)return picture(p+4,p+4+len);p+=4+len;if(last)break;}return null;}
+  // Only ISO BMFF containers can carry M4A atoms. Do not scan WAV/OGG or
+  // an ID3/FLAC audio payload after its metadata has already been examined.
+  if(b.length<12||ascii(4,4)!=='ftyp')return null;
   // M4A cover lives in a covr/data atom. Validate each candidate's enclosing size.
   for(let p=4;p+24<b.length;p++){if(b[p]!==99||ascii(p,4)!=='covr')continue;const end=p-4+u32(p-4),q=p+4;if(end>b.length||end<=q+16)continue;if(ascii(q+4,4)==='data'){const len=u32(q),kind=u32(q+8)&0xffffff;if(q+len<=end&&(kind===13||kind===14))return {data:b.slice(q+16,q+len),mime:kind===13?'image/jpeg':'image/png'};}}
  }catch{return null;}return null;

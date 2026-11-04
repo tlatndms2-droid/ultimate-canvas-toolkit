@@ -22,6 +22,7 @@ export function createLabelColorPicker(parent: HTMLElement, initialValue: string
     button.addEventListener("click", () => select(color));
   };
   const render = (): void => {
+    const restoreFocus = root.contains(document.activeElement);
     defaults.empty();
     for (const color of DEFAULT_LABEL_COLORS) swatch(defaults, color);
     const add = defaults.createEl("button", { cls: "cp-label-color-swatch cp-label-color-add", text: "+", attr: { type: "button", "aria-label": "Add custom label color" } });
@@ -29,6 +30,7 @@ export function createLabelColorPicker(parent: HTMLElement, initialValue: string
     custom.empty();
     for (const color of normalizedCustom) swatch(custom, color);
     customSection.toggleClass("is-empty", normalizedCustom.length === 0);
+    if (restoreFocus) root.querySelector<HTMLButtonElement>('.cp-label-color-swatch.is-selected')?.focus({preventScroll:true});
   };
   native.addEventListener("change", () => {
     const color = normalizeColor(native.value);

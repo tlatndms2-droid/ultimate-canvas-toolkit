@@ -10,9 +10,11 @@ export async function collectSelection(root:UctPlugin,cut:boolean){
   if(c.readonly)throw Error('읽기 전용 Canvas에서는 수집할 수 없습니다.');
   const selected=[...c.selection].filter((n:any)=>n.getData().canvasPortalRef?.role!=='exit').map((n:any)=>n.id);if(!selected.length)throw Error('수집할 카드를 선택하세요.');
   const source=c.getData(),path=view.file.path,pal=root.palette;const ids=new Set<string>(selected);
+  const contextKey=root.spaceKey(path,view),sourceJSON=cut?JSON.stringify(source):'';
+  const sameContext=()=>view.file?.path===path&&view.canvas===c&&root.spaceKey(path,view)===contextKey;
   for(const node of source.nodes)if(node.type==='group'&&ids.has(node.id))for(const child of pal.canvas.expandGroupNodes(source.nodes,[node.id]))ids.add(child.id);
   const selectedNodes=source.nodes.filter((n:any)=>ids.has(n.id));const portalNodes=selectedNodes.filter((n:any)=>n.canvasPortalRef?.role==='entry');
-  let captures:any[]=[];const created:string[]=[];
+  let captures:any[]=[];const created:string[]=[];let preserveCaptures=false;
   try{
     if(portalNodes.length){
       root.portal.discover();const session=root.session(view);if(!session)throw Error('포탈 공간이 아직 준비되지 않았습니다.');root.portal.capture(session);
@@ -30,17 +32,28 @@ export async function collectSelection(root:UctPlugin,cut:boolean){
     if(!captures.length)throw Error('보관할 수 있는 자료가 없습니다.');
     const snapshotMeta=(item:any)=>{item.id=uid();if(cut&&item.type==='group')item.cutFromCanvas=true;item.folderId=null;item.tags=[];item.canvasPlacements=[];item.origin??={};item.origin.canvasPath??=path;if(item.group)for(const meta of Object.values(item.group.nodeMetadata??{}) as any[])meta.tags=[];return item as StoredItem;};
     captures=captures.map(snapshotMeta);for(const item of captures)repairPortalPresentation(item);
-    const before=structuredClone(source);
+    const before=cut?JSON.parse(sourceJSON):null;
     for(const item of captures)root.library.items[item.id]=item;
     try{
       await root.saveLibrary();
-      if(cut){const next={...source,nodes:source.nodes.filter((n:any)=>!ids.has(n.id)),edges:source.edges.filter((e:any)=>!ids.has(e.fromNode)&&!ids.has(e.toNode))};
-        try{await c.setData(next);c.requestSave?.();await view.save();}
-        catch(error){await c.setData(before);c.requestSave?.();await view.save();throw error;}
+      if(cut){
+        if(!sameContext()||JSON.stringify(c.getData())!==sourceJSON)throw Error('수집 저장 중 Canvas가 변경되어 잘라내기를 취소했습니다. 현재 편집은 유지됩니다.');
+        const next={...before,nodes:before.nodes.filter((n:any)=>!ids.has(n.id)),edges:before.edges.filter((e:any)=>!ids.has(e.fromNode)&&!ids.has(e.toNode))},nextJSON=JSON.stringify(next);
+        try{await c.setData(next);if(!sameContext())throw Error('잘라내기 중 Canvas 공간이 변경되었습니다.');c.requestSave?.();await view.save();}
+        catch(error){
+          let restored=false;
+          if(sameContext()){
+            const current=JSON.stringify(c.getData());
+            if(current===sourceJSON)restored=true;
+            else if(current===nextJSON)try{await c.setData(before);if(sameContext()){c.requestSave?.();await view.save();restored=true;}}catch(restoreError){console.error('UCT cut restore',restoreError);}
+          }
+          if(!restored){preserveCaptures=true;throw Error((error instanceof Error?error.message:String(error))+' · 현재 편집을 덮어쓰지 않고 Mini 사본을 보존했습니다.');}
+          throw error;
+        }
       }
-    }catch(error){for(const item of captures)delete root.library.items[item.id];await root.saveLibrary();throw error;}
+    }catch(error){if(!preserveCaptures){for(const item of captures)delete root.library.items[item.id];await root.saveLibrary();}throw error;}
     new Notice(cut?'선택 자료를 Mini Collect로 잘라냈습니다.':`${captures.length}개 자료를 Mini Collect에 수집했습니다.`);
-  }catch(error){for(const path of created){const file=root.app.vault.getAbstractFileByPath(path);if(file)await root.app.vault.delete(file).catch(()=>{});}throw error;}
+  }catch(error){if(!preserveCaptures)for(const path of created){const file=root.app.vault.getAbstractFileByPath(path);if(file)await root.app.vault.delete(file).catch(()=>{});}throw error;}
 }
 
 /** Allocates the destination before walking dependencies, so cyclic Canvas or

@@ -34,7 +34,14 @@ export class CompositionMode {
  }
  private opening=false;private closing=false;private toggling=false;
  private templateQuery='';private templateFilter='all';
- constructor(private root:UctPlugin){}
+ private documentChanged?: (view:any)=>void;
+ constructor(private root:UctPlugin){
+  const {ViewPlugin}=require('@codemirror/view');
+  root.registerEditorExtension(ViewPlugin.define((view:any)=>{
+   this.documentChanged?.(view);
+   return {update:(change:any)=>{if(change.docChanged)this.documentChanged?.(change.view);}};
+  }));
+ }
  async load(){const saved=await this.root.readJSON(this.root.rootDir+'/composition.json');if(saved){this.settings={...this.settings,...saved};this.settings.templates=[...defaultTemplates.map(t=>({...structuredClone(t),...saved.templates?.find((s:any)=>s.id===t.id)})),...(saved.templates??[]).filter((t:any)=>t.custom&&typeof t.asset==='string')];}if(!this.settings.templates.some(t=>t.id===this.settings.selected))this.settings.selected='cream';}
  save(){return this.root.writeJSON(this.root.rootDir+'/composition.json',this.settings);}
  asset(template:WritingTemplate){return template.custom?this.root.app.vault.adapter.getResourcePath(template.asset):assets[template.asset];}
@@ -64,13 +71,20 @@ export class CompositionMode {
    paper.style.setProperty('--uct-writing-font',JSON.stringify(template.font));paper.style.setProperty('--uct-writing-size',template.fontSize+'px');paper.style.setProperty('--uct-writing-line',String(template.lineHeight));paper.style.setProperty('--uct-writing-color',template.color);
    const abort=new AbortController(),win=doc.defaultView!,img=new Image();
    let iw=1536,ih=1024;
-   const place=()=>{const r=mapRegion(template.region,win.innerWidth,win.innerHeight,iw,ih,template.fit);Object.assign(paper.style,{left:r.x+'px',top:r.y+'px',width:r.width+'px',height:r.height+'px'});floating?.editor?.remeasure();view.editMode?.reinit?.();};
+   let regionKey='';
+   const place=()=>{const r=mapRegion(template.region,win.innerWidth,win.innerHeight,iw,ih,template.fit),key=[r.x,r.y,r.width,r.height].join(',');if(key===regionKey)return;regionKey=key;Object.assign(paper.style,{left:r.x+'px',top:r.y+'px',width:r.width+'px',height:r.height+'px'});if(floating?.editor)floating.editor.remeasure();else view.editMode?.reinit?.();};
    img.onload=()=>{iw=img.naturalWidth;ih=img.naturalHeight;if(overlay.isConnected)place();};img.src=this.asset(template);
    const update=()=>{count.hidden=!this.settings.count;if(this.settings.count)count.setText('공백 제외 '+characterCount(view.editor.getValue()).toLocaleString()+'자');};
    const center=()=>{if(this.settings.scroll!=='typewriter')return;const cm=view.editor.cm;if(cm?.dispatch)cm.dispatch({effects:(require('@codemirror/view').EditorView).scrollIntoView(cm.state.selection.main.head,{y:'center'})});};
    const scroll=view.editor.getScrollInfo();const selections=view.editor.listSelections();
    let updateFrame=0;const scheduleUpdate=()=>{if(updateFrame||this.closing)return;updateFrame=win.requestAnimationFrame(()=>{updateFrame=0;if(abort.signal.aborted)return;update();center();});};abort.signal.addEventListener('abort',()=>win.cancelAnimationFrame(updateFrame),{once:true});
-   const ref=app.workspace.on('editor-change',(_editor,info)=>{if(info===view)scheduleUpdate();});
+   const ref=app.workspace.on('editor-change',(_editor,info)=>{if(_editor===view.editor||info===view)scheduleUpdate();});
+   // Initial file loading can replace the editor state without emitting a
+   // workspace editor-change. The registered view plugin also reports that
+   // initialization, while this callback limits work to the current document.
+   const documentChanged=(cm:any)=>{if(cm===view.editor.cm)scheduleUpdate();};
+   this.documentChanged=documentChanged;
+   abort.signal.addEventListener('abort',()=>{if(this.documentChanged===documentChanged)this.documentChanged=undefined;},{once:true});
    const observer=new ResizeObserver(place);observer.observe(overlay);
    this.session={overlay,host,placeholder,view,floating,created,previousLeaf,abort,observer,ref,previousState,scroll};
    const commands=(app as any).commands,original=commands.executeCommand;const isolated=(command:any,...args:any[])=>{if(command.id===this.root.manifest.id+':composition-open'||command.editorCallback||command.editorCheckCallback||command.id.startsWith('editor:'))return original.call(commands,command,...args);return false;};commands.executeCommand=isolated;this.restoreCommands=()=>{if(commands.executeCommand===isolated)commands.executeCommand=original;};
@@ -86,7 +100,7 @@ export class CompositionMode {
   const scroll=s.view.editor.getScrollInfo(),selections=s.view.editor.listSelections();
   this.restoreCommands?.();this.restoreCommands=undefined;s.abort.abort();s.observer.disconnect();this.root.app.workspace.offref(s.ref);
   s.placeholder.replaceWith(s.host);s.host.removeClass('uct-composition-host');s.overlay.remove();this.session=undefined;
-  s.floating?.editor?.remeasure();s.view.editMode?.reinit?.();
+  if(s.floating?.editor)s.floating.editor.remeasure();else s.view.editMode?.reinit?.();
   if(s.created)await s.floating.close(true);
   else {if(s.previousLeaf?.containerEl.isConnected)this.root.app.workspace.setActiveLeaf(s.previousLeaf,{focus:true});s.view.editor.setSelections(selections);s.view.editor.scrollTo(scroll.left,scroll.top);s.view.editor.focus();if(s.previousState.mode==='preview'||s.previousState.source===true)await s.view.setState({...s.view.getState(),mode:s.previousState.mode,source:s.previousState.source},{history:false});}
   this.closing=false;

@@ -466,7 +466,8 @@ export class CanvasAdapter {
   }
 
   createItemBundle(items: PaletteItem[], context: CanvasContext): ExportBundle {
-    const document = this.currentDocument(context);
+    // Only IDs are read here; copying embedded portal graphs is unnecessary.
+    const document = this.liveDocument(context);
     const positions = this.batchRestorePositions(items, { x: 0, y: 0 });
     const usedNodeIds = new Set(document.nodes.map((node) => node.id));
     const usedEdgeIds = new Set(document.edges.map((edge) => edge.id));
@@ -696,7 +697,7 @@ export class CanvasAdapter {
       return { node: { id: nextId(), type: "text", text, x, y, width: size.width, height: size.height }, warning: `${item.displayTitle}: Markdown source was unavailable, so stored content was exported as a Card.` };
     }
     if (item.type === "image" || item.type === "video") {
-      const path = item.origin.filePath ?? (item.type === "video" ? item.sourceReferencePath : undefined);
+      const path = item.origin.filePath ?? item.sourceReferencePath;
       const file = path ? this.app.vault.getAbstractFileByPath(path) : null;
       if (!(file instanceof TFile)) return { node: null, warning: `${item.displayTitle}: ${item.type} source was unavailable and was skipped.` };
       return { node: { id: nextId(), type: "file", file: file.path, x, y, width: size.width, height: size.height } };
@@ -825,8 +826,14 @@ export class CanvasAdapter {
 
   bundleCollides(context: CanvasContext, bundle: ExportBundle, origin: { x: number; y: number }, ignoredNodeIds: Set<string>, policy: PlacementCollisionPolicy): boolean {
     if (policy === "allow-overlap") return false;
-    const document = this.currentDocument(context);
+    const document = this.liveDocument(context);
     return bundleContentCollides(document.nodes, bundle.nodes, origin, ignoredNodeIds);
+  }
+
+  /** Borrowed, read-only arrays. Mutation paths must use currentDocument instead. */
+  private liveDocument(context: CanvasContext): Pick<CanvasDocument, "nodes" | "edges"> {
+    const current = context.runtime.getData?.() as Partial<CanvasDocument> | undefined;
+    return { nodes: Array.isArray(current?.nodes) ? current.nodes : [], edges: Array.isArray(current?.edges) ? current.edges : [] };
   }
 
   async commitBundle(context: CanvasContext, bundle: ExportBundle, origin: { x: number; y: number }, duplicateMode: BundleDuplicateMode, collisionPolicy: PlacementCollisionPolicy): Promise<boolean> {

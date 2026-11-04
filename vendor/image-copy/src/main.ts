@@ -71,8 +71,10 @@ export default class CanvasImageCopy extends Plugin {
       else {
         const remote=require('@electron/remote');
         const result=await remote.dialog.showOpenDialog({title:'이미지를 저장할 폴더 선택',buttonLabel:'이 폴더에 저장',properties:['openDirectory']});
-        if(result.canceled || !result.filePaths[0]) return;
-        for(const file of files) {try {await copyWithoutOverwrite(file,result.filePaths[0]);success++;} catch {failed++;}}
+        if(result.canceled) return;
+        const folder=result.filePaths[0];
+        if(!folder) return;
+        for(const file of files) {try {await copyWithoutOverwrite(file,folder);success++;} catch {failed++;}}
       }
       const suffix=(selection.excluded || failed)?` (제외 ${selection.excluded}개 · 실패 ${failed}개)`:'';
       new Notice(`이미지 ${success}개를 ${mode==='copy'?'클립보드에 복사':'선택한 폴더에 저장'}했습니다${suffix}`);

@@ -21,6 +21,7 @@ interface CanvasView {
 interface Mounted { node:CanvasNode; viewer:PdfViewer; file:TFile; stamp:number; key:string; subpath:string; child?:CanvasNode["child"]; dispose:()=>void }
 
 export default class CanvasPdfViewcard extends Plugin {
+  uctCanvasViews?:()=>CanvasView[];
   settings: Settings = {cards:{},popup:{...defaultPopup}};
   pool!: PdfPool;
   private mounted=new Map<CanvasNode,Mounted>();
@@ -60,7 +61,7 @@ export default class CanvasPdfViewcard extends Plugin {
   }
   private scan() {
     if(this.stopped)return;
-    const views=new Set(this.app.workspace.getLeavesOfType("canvas").map((l:WorkspaceLeaf)=>l.view as unknown as CanvasView));
+    const views=new Set(this.uctCanvasViews?.()??this.app.workspace.getLeavesOfType("canvas").map((l:WorkspaceLeaf)=>l.view as unknown as CanvasView));
     const live=new Set<CanvasNode>();
     for(const [view,observer] of this.observers)if(!views.has(view)){
       observer.disconnect();this.observers.delete(view);

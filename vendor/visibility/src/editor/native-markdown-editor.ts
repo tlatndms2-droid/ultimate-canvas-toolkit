@@ -26,6 +26,7 @@ export class NativeMarkdownEditor {
   private previousContext: any;
   private scopeActive = false;
   private abort = new AbortController();
+  private measureFrame = 0;
 
   constructor(
     private readonly app: App,
@@ -45,9 +46,9 @@ export class NativeMarkdownEditor {
 
     if (this.target.kind === "file" && this.target.file) {
       await leaf.openFile(this.target.file, {
-        active: true,
+        active: false,
         state: { mode: "source", source: false },
-        eState: { focus: true }
+        eState: { focus: false }
       });
       await leaf.loadIfDeferred();
       if (!(leaf.view instanceof MarkdownView)) {
@@ -61,7 +62,6 @@ export class NativeMarkdownEditor {
       this.view = view;
     }
 
-    this.app.workspace.setActiveLeaf(leaf, { focus: true });
     const view=this.view;
     // Detached leaves are intentionally outside the tab tree. Obsidian rejects
     // setActiveLeaf for them; expose the documented MarkdownFileInfo instead.
@@ -89,10 +89,15 @@ export class NativeMarkdownEditor {
   }
 
   remeasure(): void {
-    (this.view as MeasurableMarkdownView | null)?.editMode?.reinit?.();
+    if(this.measureFrame||!this.view)return;
+    const win=this.split?.containerEl.ownerDocument.defaultView;
+    if(!win)return;
+    this.measureFrame=win.requestAnimationFrame(()=>{this.measureFrame=0;(this.view as MeasurableMarkdownView | null)?.editMode?.reinit?.();});
   }
 
   detach(): void {
+    if(this.measureFrame)this.split?.containerEl.ownerDocument.defaultView?.cancelAnimationFrame(this.measureFrame);
+    this.measureFrame=0;
     this.abort.abort();
     this.leaf?.detach();
     this.leaf = null;

@@ -48,7 +48,7 @@ export class CanvasMetadataController {
       for (const [nodeId, node] of nodes) {
         if (!node.nodeEl?.isConnected) continue;
         live.add(node.nodeEl);
-        this.decorate(node, context.file.path, nodeId, this.plugin.store.getCanvasNodeMetadata(context.file.path, nodeId), links.get(JSON.stringify([context.file.path, nodeId])));
+        this.decorate(node, context.file.path, nodeId, this.plugin.store.getCanvasNodeMetadata(context.file.path, nodeId, context.view), links.get(JSON.stringify([context.file.path, nodeId])));
       }
     }
     for (const element of this.observedNodes.keys()) if (!live.has(element)) { this.resizeObserver.unobserve(element); this.observedNodes.delete(element); this.signatures.delete(element); this.nodesByElement.delete(element); }

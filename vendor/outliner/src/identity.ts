@@ -4,11 +4,16 @@ export interface IdentityTransfer {previous:string|null;identity:string;state:Ca
 export class CanvasIdentity {
  private tail:Promise<unknown>=Promise.resolve();
  readonly pending=new Map<string,number>();
+ private verified=new Map<string,{revision:string;identity:string}>();
+ private invalidations=new Map<string,number>();
+ invalidate(path:string){this.verified.delete(path);this.invalidations.set(path,(this.invalidations.get(path)??0)+1);}
  constructor(private io:{store:()=>Store;read:(path:string)=>Promise<CanvasDocument>;
-  write:(path:string,previous:string|null,id:string)=>Promise<CanvasDocument>;save:()=>Promise<void>}){}
+  write:(path:string,previous:string|null,id:string)=>Promise<CanvasDocument>;save:()=>Promise<void>;revision?:(path:string)=>string|null}){}
  ensure(path:string,explicit?:CanvasState):Promise<void>{
+  const revision=this.io.revision?.(path),cached=this.verified.get(path),store=this.io.store();
+  if(!explicit&&!this.pending.has(path)&&revision!=null&&cached?.revision===revision&&cached.identity===store.canvases[path]?.identity&&!store.identityTransfers?.[path])return Promise.resolve();
   this.pending.set(path,(this.pending.get(path)??0)+1);
-  const run=this.tail.catch(()=>{}).then(()=>this.apply(path,explicit));
+  const run=this.tail.catch(()=>{}).then(async()=>{const before=this.io.revision?.(path),epoch=this.invalidations.get(path);await this.apply(path,explicit);const identity=this.io.store().canvases[path]?.identity;if(before!=null&&before===this.io.revision?.(path)&&epoch===this.invalidations.get(path)&&identity&&!this.io.store().identityTransfers?.[path])this.verified.set(path,{revision:before,identity});}).catch(error=>{this.verified.delete(path);throw error;});
   this.tail=run;return run.finally(()=>{const left=(this.pending.get(path)??1)-1;if(left)this.pending.set(path,left);else this.pending.delete(path);});
  }
  async drain(){await this.tail;}

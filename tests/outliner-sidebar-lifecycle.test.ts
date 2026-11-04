@@ -1,0 +1,10 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {transformSync} from 'esbuild';import vm from 'node:vm';
+const source=readFileSync('vendor/outliner/src/main.ts','utf8'),method=source.slice(source.indexOf(' async openSidebar('),source.indexOf(' renderAll()'));
+const open=vm.runInNewContext(transformSync('const holder={'+method+'};holder.openSidebar',{loader:'ts'}).code,{VIEW:'uct-outliner'});
+test('concurrent sidebar opens share one leaf and one rendering operation',async()=>{let release!:()=>void,created=0,renders=0;const gate=new Promise<void>(r=>release=r),leaves:any[]=[],leaf={view:{getViewType:()=> 'uct-outliner'},async setViewState(){await gate;leaves.push(this)},async loadIfDeferred(){}};
+ const p:any={app:{workspace:{getLeavesOfType:()=>leaves,iterateAllLeaves(){},getRightLeaf(){created++;return leaf},revealLeaf(){}}},renderAll(){renders++}};const a=open.call(p,false),b=open.call(p,false);assert.equal(created,1);release();await Promise.all([a,b]);assert.equal(renders,1);assert.equal(p.sidebarOpening,null);
+});
+test('a serialized sidebar awaiting view registration is reused rather than duplicated',async()=>{let created=0,restored=0;const leaf={view:{getViewType:()=> 'unknown'},getViewState:()=>({type:'uct-outliner',state:{}}),async setViewState(){restored++},async loadIfDeferred(){}};
+ const p:any={app:{workspace:{getLeavesOfType:()=>[],iterateAllLeaves(fn:any){fn(leaf)},getRightLeaf(){created++;return leaf},revealLeaf(){}}},renderAll(){}};await open.call(p,false);assert.equal(created,0);assert.equal(restored,1);
+ p.identityStopped=true;await open.call(p,false);assert.equal(restored,1,'an unloaded module must not reopen UI');
+});

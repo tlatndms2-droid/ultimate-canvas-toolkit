@@ -132,8 +132,11 @@ export default class CanvasMindmap extends Plugin {
   const anchor=this.multiAnchor;
   for(const el of document.querySelectorAll<HTMLElement>('.cm-multi-anchor'))if(!c||!anchor||anchor.c!==c||!c.selection.has(c.nodes.get(anchor.id))||c.selection.size<2||el!==c.nodes.get(anchor.id)?.nodeEl)el.classList.remove('cm-multi-anchor');
   if(c&&anchor&&anchor.c===c&&c.selection.size>1&&c.selection.has(c.nodes.get(anchor.id)))c.nodes.get(anchor.id).nodeEl.classList.add('cm-multi-anchor');
-  const buttons=this.toolbarButtons(c);for(const el of document.querySelectorAll<HTMLElement>('[data-cm-key]'))if(!buttons.includes(el))delete el.dataset.cmKey;
-  buttons.forEach((el,i)=>{if(this.toolbarSession?.c===c&&i<20&&c.selection.size&&![...c.nodes.values()].some((n:any)=>n.isEditing))el.dataset.cmKey=(i>=10?'⇧':'')+((i+1)%10);else delete el.dataset.cmKey;});
+  // Visibility checks force layout. Number badges are needed only while the
+  // keyboard toolbar session is open, not on every 100ms maintenance tick.
+  const showKeys=!!c&&this.toolbarSession?.c===c&&c.selection.size>0&&![...c.nodes.values()].some((n:any)=>n.isEditing);
+  const buttons=showKeys?this.toolbarButtons(c):[];for(const el of document.querySelectorAll<HTMLElement>('[data-cm-key]'))if(!buttons.includes(el))delete el.dataset.cmKey;
+  buttons.forEach((el,i)=>{if(i<20){const key=(i>=10?'⇧':'')+((i+1)%10);if(el.dataset.cmKey!==key)el.dataset.cmKey=key;}else delete el.dataset.cmKey;});
  }
  private holdMenuKey(e:KeyboardEvent){if(!this.menu)return false;this.stop(e);if(e.key==='Escape'){this.reset();return true;}if(e.key==='ArrowUp'||e.key==='ArrowDown'){const m=this.menu;m.index=(m.index+(e.key==='ArrowDown'?1:-1)+m.values.length)%m.values.length;this.paintMenu();}return true;}
  private convertFile(c:Canvas,id:string,path:string){
@@ -205,7 +208,8 @@ export default class CanvasMindmap extends Plugin {
   keyboardTarget.addEventListener('keydown',down as EventListener,true);keyboardTarget.addEventListener('keyup',up as EventListener,true);doc.defaultView?.addEventListener('blur',blur);
   registerRuntimeCleanup(this,doc,()=>{keyboardTarget.removeEventListener('keydown',down as EventListener,true);keyboardTarget.removeEventListener('keyup',up as EventListener,true);doc.defaultView?.removeEventListener('blur',blur);});
  }
- private activeCanvas():Canvas|null {const view=this.app?.workspace.getActiveViewOfType(Object as any) as any;return view?.getViewType?.()==='canvas'?view.canvas:null;}
+ uctActiveCanvas?:()=>Canvas|null;
+ private activeCanvas():Canvas|null {if(this.uctActiveCanvas)return this.uctActiveCanvas();const view=this.app?.workspace.getActiveViewOfType(Object as any) as any;return view?.getViewType?.()==='canvas'?view.canvas:null;}
  private isDrawing(c:Canvas|null){return !!c?.wrapperEl?.classList.contains('cdt-drawing');}
  private drawingBlocked(c=this.activeCanvas()){
   if(!this.isDrawing(c)){this.drawingSuspended=false;return false;}
