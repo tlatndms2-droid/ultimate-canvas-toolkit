@@ -1,3 +1,9 @@
+## 2026-11-10 — 0.1.19 공개 배포 완료
+
+- Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.19 . 소스 dc8f8d5. 카드 입력 시 자동 포커스 ON/OFF 및 Ctrl+P 전환 명령 추가, 기본 ON/설정 저장/기존 백업 호환 유지.
+- 구현 Sandbox에서 OFF 화면 위치·배율 유지와 입력, ON 이동·확대, 편집 중 OFF 추적 해제, 명령 팔레트 두 방향 전환·알림·설정 동기화·저장을 확인했고 사용자 검수 승인. 근거 .validation/auto-focus-20261110/.
+- 타입 검사/빌드 및 공개3파일·버전ZIP 다운로드 해시 일치. .validation/release-0.1.19/public-assets.json. 최신 배포 지침에 따라 배포를 위한 Sandbox/BRAT 검증은 반복하지 않음. 원본 Vault 설치·변경 없음.
+
 ## 2026-11-04 — 0.1.18 공개 배포·BRAT 재시작 확인 완료
 
 - 사용자 배포 승인. Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.18 . 소스 커밋 033bb8e, tag 0.1.18. 공개 main.js/manifest.json/styles.css 및 버전 ZIP 다운로드 해시 일치.

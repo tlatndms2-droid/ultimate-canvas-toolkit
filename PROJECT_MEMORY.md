@@ -1,3 +1,8 @@
+## 2026-11-10 — 0.1.19 자동 포커스 스위치·명령 배포
+
+- 사용자 검수 후 배포 승인. 카드 입력 시 자동 화면 이동·확대/입력 줄 추적을 끄는 autoFocusOnEdit 설정 추가. 기본 ON, OFF는 카메라 RAF 시작 안 함/진행 중 추적 즉시 해제. Ctrl+P ‘카드 입력 시 자동 포커스 켜기/끄기’가 같은 설정 전환·저장·알림. 이전 설정 백업은 ON으로 호환.
+- Sandbox 실제 ON/OFF·입력·위치/배율·명령 팔레트·설정 저장/재로드 확인. 타입/빌드 통과. 소스 dc8f8d5, Release https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.19 . 공개3파일/ZIP 해시 일치. 배포에 Sandbox/BRAT 검증 추가하지 않음. 원본 Vault 변경 없음.
+
 ## 2026-11-04 — 사용자 승인으로 0.1.18 공개 배포 완료
 
 - Release https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.18 . 소스033bb8e, 공개3파일과ZIP 해시 일치. BRAT2.2.0 실제 재설치 후 별도 Sandbox 재시작1.15.0/UCT0.1.18/Outliner ready·자료보존·pending0 확인. BRAT manifest 공백 차이는 JSON 필드 일치로 확인.
