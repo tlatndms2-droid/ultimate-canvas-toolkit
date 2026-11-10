@@ -15,8 +15,8 @@ import { SelectionHistory } from './selection-history';
 import { SizeController } from './size';
 import { NavigationController, nearestCard } from './navigation';
 type Canvas = any;
-interface Settings { arrangeRange:number; arrangeDepth:number; mode: 'create'|'connect'; width: number|null; height:number|null; gap:number; origins:Record<string,string>;resizeStep:number;swapTolerance:number;panDuration:number;panStep:number;zoomStepPercent:number;followCaret:boolean;editMinZoom:number;customColors:string[];managerSize:{width:number;height:number}|null }
-const settingDefaults={arrangeRange:3,arrangeDepth:1,mode:'create' as const,width:null as number|null,height:null as number|null,gap:100,resizeStep:20,swapTolerance:40,panDuration:250,panStep:60,zoomStepPercent:(2**0.1-1)*100,followCaret:true,editMinZoom:100};
+interface Settings { arrangeRange:number; arrangeDepth:number; mode: 'create'|'connect'; width: number|null; height:number|null; gap:number; origins:Record<string,string>;resizeStep:number;swapTolerance:number;panDuration:number;panStep:number;zoomStepPercent:number;followCaret:boolean;editMinZoom:number;autoFocusOnEdit:boolean;customColors:string[];managerSize:{width:number;height:number}|null }
+const settingDefaults={arrangeRange:3,arrangeDepth:1,mode:'create' as const,width:null as number|null,height:null as number|null,gap:100,resizeStep:20,swapTolerance:40,panDuration:250,panStep:60,zoomStepPercent:(2**0.1-1)*100,followCaret:true,editMinZoom:100,autoFocusOnEdit:true};
 interface Hold { key:string; timer:number; canvas:Canvas; anchor:string; consumed:boolean }
 interface MenuState { el:HTMLElement; values:string[]; index:number; kind:'mode'|'source'; canvas:Canvas; anchor:string }
 export default class CanvasMindmap extends Plugin {
@@ -72,6 +72,7 @@ export default class CanvasMindmap extends Plugin {
   this.addCommand({id:'arrange-connected',name:'연결된 카드 정렬 (시험)',hotkeys:[{modifiers:['Ctrl','Shift'],key:'l'}],checkCallback:checking=>{const c=this.current();if(!c||c.readonly||![...c.selection].some((n:any)=>c.nodes.has(n.id)&&n.getData().type!=='group')||[...c.nodes.values()].some((n:any)=>n.isEditing)||document.activeElement?.closest('input,textarea,[contenteditable="true"],.modal-container'))return false;if(!checking&&this.shouldRunConnectionCommand())this.arrange(c);return true;}});
   this.syncColorCommands();
   this.editorCamera=new EditorCamera(this);
+  this.addCommand({id:'toggle-edit-auto-focus',name:'카드 입력 시 자동 포커스 켜기/끄기',callback:async()=>{const enabled=!this.settings.autoFocusOnEdit;await this.setAutoFocusOnEdit(enabled);new Notice(`카드 입력 시 자동 포커스: ${enabled?'켜짐':'꺼짐'}`);}});
   this.selections=new SelectionHistory(cb=>this.register(cb));
   this.addCommand({id:'toggle-auto-resize',name:'선택한 카드 내용에 맞추기',hotkeys:[{modifiers:['Alt'],key:'r'}],checkCallback:checking=>{const c=this.current();if(!this.canUseCardCommand(c,true)||![...c.selection].some((n:any)=>n.getData().type==='text'))return false;if(!checking){if(this.altTap)this.altTap.clean=false;this.reset();void this.sizes.fitSelection(c).catch(error=>{console.error(error);new Notice('카드 크기를 맞추지 못했습니다.');});}return true;}});
   this.addCommand({id:'card-context-menu',name:'선택한 카드 우클릭 메뉴',hotkeys:[{modifiers:['Alt'],key:'m'}],checkCallback:checking=>{const c=this.current();if(!this.canUseCardCommand(c,true)||!c.selection.size)return false;if(!checking)this.openCardContext(c);return true;}});
@@ -193,6 +194,7 @@ export default class CanvasMindmap extends Plugin {
  }
  syncColorCommands(){for(const id of this.colorCommands)this.removeCommand(id);this.colorCommands.clear();for(const color of this.settings.customColors){const id='apply-custom-'+color.slice(1);this.colorCommands.add(id);this.addCommand({id,name:`사용자 색상 ${color} 적용`,checkCallback:checking=>{const c=this.current();if(!c||c.readonly||!c.selection.size||[...c.nodes.values()].some((n:any)=>n.isEditing))return false;if(!checking)this.panels.applyColor(c,color);return true;}});}}
  async restoreSettings(values:any){await this.saveChain;const next={...this.settings,...settingsOnly(values)};await this.saveData(next);this.settings=next;this.reset();this.panels.close(false);}
+ setAutoFocusOnEdit(value:boolean){this.settings.autoFocusOnEdit=value;if(!value)this.editorCamera.stop();return this.persist();}
  persist(){this.saveChain=this.saveChain.then(()=>this.saveData(this.settings)).catch(()=>{new Notice('Canvas Mindmap 설정을 저장하지 못했습니다.');});return this.saveChain;}
  private attach(doc:Document){
   if(this.docs.has(doc))return;this.docs.add(doc);
@@ -428,6 +430,7 @@ class CreationSettings extends PluginSettingTab {
   this.containerEl.createEl('h3',{text:'카메라'});
   this.cameraSlider('panStep','화면 이동량','Shift+방향키 한 번의 이동 거리. 기본 60px.',1,600,1,'px');
   this.cameraSlider('zoomStepPercent','확대·축소량','Shift+Alt+↑/↓ 한 번의 배율 변화. 기본 약 7.18%.',0.01,50,0.01,'%');
+  this.resetButton(new Setting(this.containerEl).setName('카드 입력 시 자동 포커스').setDesc('켜면 카드 편집 시 화면을 카드로 이동·확대합니다. 끄면 입력 중에도 현재 화면 위치와 배율을 유지하며 입력 줄을 따라가지 않습니다.').addToggle(toggle=>toggle.setValue(this.plugin.settings.autoFocusOnEdit).onChange(async value=>{await this.plugin.setAutoFocusOnEdit(value);})),'autoFocusOnEdit');
   this.cameraSlider('editMinZoom','편집 시 최소 확대율','기본 100%. 이미 더 확대되어 있으면 유지합니다.',6.25,200,0.25,'%');
   this.resetButton(new Setting(this.containerEl).setName('입력 줄 따라가기').setDesc('편집 중 줄바꿈 시 입력 줄을 화면 중앙으로 이동합니다. 가로 위치는 따라가지 않습니다.').addToggle(toggle=>toggle.setValue(this.plugin.settings.followCaret).onChange(async value=>{this.plugin.settings.followCaret=value;await this.plugin.persist();})),'followCaret');
   this.cameraSlider('panDuration','화면 이동 시간','값이 클수록 천천히 이동합니다. 기본 250ms.',0,2000,10,'ms');

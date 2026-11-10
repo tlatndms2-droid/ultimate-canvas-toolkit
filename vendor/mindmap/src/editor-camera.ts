@@ -1,6 +1,6 @@
 import {registerRuntimeCleanup} from './runtime-cleanup';
 interface Host {
- settings:{followCaret:boolean;editMinZoom:number};
+ settings:{followCaret:boolean;editMinZoom:number;autoFocusOnEdit?:boolean};
  register(cb:()=>void):void;
 }
 /** Uses a configurable minimum edit zoom and Canvas' native animation after editor readiness. */
@@ -18,7 +18,7 @@ export class EditorCamera {
    const wrapper=function(this:any,...args:any[]){
     const entering=!this.isEditing,zoom=c.zoom;
     const result=original.apply(this,args);
-    if(entering&&this.isEditing)controller.begin(c,this,zoom);
+    if(entering&&this.isEditing&&controller.host.settings.autoFocusOnEdit!==false)controller.begin(c,this,zoom);
     return result;
    };
    n.startEditing=wrapper;
@@ -34,7 +34,7 @@ export class EditorCamera {
   const a={c,n,zoom,frame:0,ready:false,head:-1,doc:null as any,line:NaN,paused:false,retry:0};this.active=a;
   const tick=()=>{
    if(this.active!==a)return;
-   if(!n.isEditing||!n.nodeEl.isConnected){this.stop();return;}
+   if(this.host.settings.autoFocusOnEdit===false||!n.isEditing||!n.nodeEl.isConnected){this.stop();return;}
    const cm=n.child?.editMode?.cm;
    if(cm?.dom?.isConnected&&++a.retry>2){
     const head=cm.state.selection.main.head,doc=cm.state.doc;
