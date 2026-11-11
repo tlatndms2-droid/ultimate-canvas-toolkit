@@ -1,3 +1,10 @@
+## 2026-11-11 — 포탈 재시작 위치 복원 수정, Sandbox 검수 완료 / 미배포
+
+- 0.1.19의 정상 포탈 진입 기록으로 시작해도 바깥 Canvas가 열리는 증상 재현. 같은 기록을 기존 복원 함수에 직접 전달하면 내부 복원 성공. 비동기 통합 초기화 중 먼저 생성된 Canvas가 포탈 상태 전달을 놓치는 경로를 보완했다.
+- UCT 시작 즉시 기존 workspace.json 읽기를 시작하고 탭 ID·파일별 포탈 위치를 모듈에 전달. Canvas가 준비되면 한 번 복원하며, 적용 전 getState에도 대기 기록을 보존한다. 다른 파일 전환은 이전 기록을 적용하지 않는다. 새 저장 파일/형식 추가 없음.
+- src/main.ts, vendor/portal/src/main.cjs 및 position-state.cjs 수정. 관련10검사/타입/빌드 통과. Sandbox 정상 창 닫기·재실행 후 일반/중첩 포탈·독립된 동일파일 두 탭·위치/배율·부모/루트 복귀 통과. 공개배포 없음.
+- 설치 main.js SHA256 5f9b6c02282fbff2e3ec5aa06690c104a8188d750c13fe533d58521e75bc15fa. 증거 .validation/portal-reopen-20261111/fixed-proof.json. work/UCT-Release-0.1.18-Sandbox/CDP19852의 UCT-Portal-Reopen-ea5516a8-ee8a-4765-ad4e-5503333e79fc.canvas 중첩 포탈을 열어 둠. 원본 Vault 변경 없음.
+
 ## 2026-11-10 — 0.1.19 자동 포커스 스위치·명령 배포
 
 - 사용자 검수 후 배포 승인. 카드 입력 시 자동 화면 이동·확대/입력 줄 추적을 끄는 autoFocusOnEdit 설정 추가. 기본 ON, OFF는 카메라 RAF 시작 안 함/진행 중 추적 즉시 해제. Ctrl+P ‘카드 입력 시 자동 포커스 켜기/끄기’가 같은 설정 전환·저장·알림. 이전 설정 백업은 ON으로 호환.

@@ -73,6 +73,8 @@ module.exports = class CanvasPortal extends Plugin {
     this.sessions = new Map();
     this.errors = [];
     this.viewHooks=new Map();this.pendingPositions=new WeakMap();
+    this.initialPositions=require('./position-state.cjs').savedPositions(this.uctInitialLayout);this.uctInitialLayout=null;
+    this.loadingViewState=new WeakSet();
     this.installViewState();
     const local=require('node:path').join(process.env.LOCALAPPDATA||require('node:os').homedir(),'CanvasPortalSafety',S.hash(this.app.vault.adapter.basePath));
     this.safety=S.install(this.app.vault.adapter,local,e=>this.notifyError(e));
@@ -128,17 +130,23 @@ module.exports = class CanvasPortal extends Plugin {
   }
   hookViewState(v){
     if(this.viewHooks.has(v))return;
+    const saved=this.initialPositions.get(v.leaf.id);this.initialPositions.delete(v.leaf.id);
+    if(saved&&(!v.file||v.file.path===saved.file))this.pendingPositions.set(v,saved);
     const get=v.getState,set=v.setState,hadGet=Object.hasOwn(v,'getState'),hadSet=Object.hasOwn(v,'setState'),plugin=this;
-    const read=function(...args){const state=get.apply(this,args),s=plugin.sessions.get(v),position=s?plugin.positionState(s):plugin.pendingPositions.get(v);if(position)state.canvasPortalPosition=M.clone(position);return state;};
+    const read=function(...args){const state=get.apply(this,args),s=plugin.sessions.get(v),position=plugin.pendingPositions.get(v)??(s?plugin.positionState(s):null);if(position)state.canvasPortalPosition=M.clone(position);return state;};
     const write=async function(state,...args){
-      const position=state?.canvasPortalPosition;
+      const candidate=state?.canvasPortalPosition??plugin.pendingPositions.get(v);
+      const position=candidate?.file===(state?.file??v.file?.path)?candidate:null;
       plugin.pendingPositions.delete(v);
       if(position?.version===1)plugin.pendingPositions.set(v,M.clone(position));
-      const result=await set.call(this,state,...args);
-      plugin.discover();
-      const s=plugin.sessions.get(v);
-      if(s&&position?.version===1)await plugin.restorePosition(s,position);
-      return result;
+      plugin.loadingViewState.add(v);
+      try{
+        const result=await set.call(this,state,...args);
+        plugin.discover();
+        const s=plugin.sessions.get(v);
+        if(s&&position?.version===1)await plugin.restorePosition(s,position);
+        return result;
+      }finally{plugin.loadingViewState.delete(v);}
     };
     v.getState=read;v.setState=write;
     this.viewHooks.set(v,()=>{if(v.getState===read){if(hadGet)v.getState=get;else delete v.getState;}if(v.setState===write){if(hadSet)v.setState=set;else delete v.setState;}});
@@ -453,6 +461,8 @@ module.exports = class CanvasPortal extends Plugin {
     s.observer.observe(c.canvasEl, { childList: true });
     c.wrapperEl.style.setProperty('--cp-glow', this.settings.glowColor);
     this.queue(s);
+    const position=this.pendingPositions.get(v);
+    if(position&&!this.loadingViewState.has(v))void this.restorePosition(s,position).catch(e=>this.notifyError(e));
   }
   batchViewportUnmount(s, original, args) {
     const c = s.c;

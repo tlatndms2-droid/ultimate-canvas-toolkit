@@ -40,6 +40,8 @@ export default class UctPlugin extends Plugin {
   spaceKey(path?:string,view?:any):string {return this.canvasRuntime.key(path,view);}
   metadata(path:string,id:string,targetView?:any):any {const view=targetView??this.canvasView(),session=this.session(view);return this.palette?.store?.data.canvasNodeMetadata[this.spaceKey(path,view)]?.[id]??(session?.v.file?.path===path?session.root.uctNodeMetadata?.[session.current??'root']?.[id]??session.v.canvas?.nodes?.get(id)?.getData?.().uctMetadata:undefined);}
   async onload(){
+    // Canvas tabs can finish restoring while the integrated modules load.
+    const startupLayout=this.app.workspace.layoutReady?Promise.resolve(null):this.readJSON(this.app.vault.configDir+'/workspace.json').catch(()=>null);
     this.canvasRuntime=new CanvasRuntime(this.app.workspace,()=>this.portal?.sessions,()=>this.modules.outliner?.adapter?.view);
     this.canvasRuntime.sync();this.register(()=>this.canvasRuntime.dispose());
     this.register(this.canvasRuntime.subscribe(change=>{
@@ -55,7 +57,8 @@ export default class UctPlugin extends Plugin {
     // Root capture handlers claim only their node types. Original Portal,
     // Mindmap media and PDF handlers retain their own protected scopes.
     this.registerDomEvent(window,'keydown',(e:KeyboardEvent)=>this.key(e),true);
-    await this.loadFeature('portal',Portal,'canvas-portal');
+    const initialLayout=await startupLayout;
+    await this.loadFeature('portal',Portal,'canvas-portal',(module:any)=>{module.uctInitialLayout=initialLayout;});
     this.portal.uctCanvasViews=()=>this.canvasRuntime.all();
     const capture=this.portal.capture.bind(this.portal);this.portal.capture=(session:any)=>{const result=capture(session);const capturedPath=session.v.file?.path??session.path;if(this.palette&&capturedPath)for(const [space,graph] of [['root',session.root],...Object.entries(session.root.canvasPortal?.portals??{}).map(([id,p]:[string,any])=>[id,p.graph])] as [string,any][]){const key=space==='root'?capturedPath:capturedPath+'#uct-portal:'+space;for(const node of graph.nodes??[]){const meta=this.palette.store.data.canvasNodeMetadata[key]?.[node.id];if(meta)node.uctMetadata=structuredClone(meta);}}return result;};
     const show=this.portal.show.bind(this.portal);this.portal.show=(session:any,data:any,...rest:any[])=>{if(this.palette){const key=session.current?session.v.file.path+'#uct-portal:'+session.current:session.v.file.path;let changed=false;for(const node of data.nodes??[]){const meta=node.uctMetadata,existing=this.palette.store.data.canvasNodeMetadata[key]?.[node.id];if(meta&&(!existing||meta.modifiedAt>existing.modifiedAt)){this.palette.store.setMetadataRecord(key,node.id,meta,meta.modifiedAt??Date.now());changed=true;}}if(changed)this.palette.store.changed();}const result=show(session,data,...rest);queueMicrotask(()=>this.spaceChanged());return result;};
