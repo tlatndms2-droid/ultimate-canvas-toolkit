@@ -1,3 +1,9 @@
+## 2026-11-11 — 0.1.20 포탈 재시작 위치 복원 배포 완료
+
+- 사용자 승인 Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.20 . 소스106171a. 공개 main.js/manifest.json/styles.css/ZIP 다운로드 해시 일치.
+- 앱 시작 때 저장된 탭별 포탈 경로를 먼저 읽어 비동기 모듈 초기화 후 Canvas에 한 번 복원. 다른 파일에 이전 기록 적용 금지. 기존 저장 형식 유지. 관련10검사/타입/빌드와 일반·중첩 포탈 정상 종료/재실행·동일파일 두 탭·화면 위치/배율·부모/루트 복귀 확인.
+- 기존 Sandbox 검증 재사용, 배포에 Sandbox/BRAT 설치 검증 추가 없음. 증거 .validation/portal-reopen-20261111/fixed-proof.json 및 .validation/release-0.1.20/public-assets.json. 원본 Vault 변경 없음.
+
 ## 2026-11-10 — 0.1.19 공개 배포 완료
 
 - Release: https://github.com/tlatndms2-droid/ultimate-canvas-toolkit/releases/tag/0.1.19 . 소스 dc8f8d5. 카드 입력 시 자동 포커스 ON/OFF 및 Ctrl+P 전환 명령 추가, 기본 ON/설정 저장/기존 백업 호환 유지.
