@@ -3,17 +3,20 @@ import type UctPlugin from './main';
 
 import {mediaKind,albumArt} from './media-format';
 
+// Cards from other plugins (Freeform Link Cards) handle their own clicks; leave their images alone.
+const EXTERNAL_CARD='.freeform-link-card,.freeform-link-card-node';
+
 export class MediaPreview {
  private current?:{el:HTMLElement;close:()=>void};private positions=new Map<string,number>();
  constructor(private root:UctPlugin){}
  install(){
-  this.root.registerDomEvent(window,'click',e=>{const target=e.target as HTMLElement;if(target.closest('.uct-media-preview,.uct-mini,.uct-large-preview'))return;const img=target.closest('img');if(img&&img.closest('.markdown-preview-view,.markdown-source-view,.canvas-node')){e.preventDefault();e.stopImmediatePropagation();}},true);
+  this.root.registerDomEvent(window,'click',e=>{const target=e.target as HTMLElement;if(target.closest('.uct-media-preview,.uct-mini,.uct-large-preview'))return;if(target.closest(EXTERNAL_CARD))return;const img=target.closest('img');if(img&&img.closest('.markdown-preview-view,.markdown-source-view,.canvas-node')){e.preventDefault();e.stopImmediatePropagation();}},true);
   // Claim the second press before Obsidian's click handler opens its own lightbox.
   this.root.registerDomEvent(window,'mousedown',e=>{if(e.detail===2)this.doubleClick(e);},true);
   this.root.registerDomEvent(window,'dblclick',e=>this.doubleClick(e),true);
  }
  private doubleClick(e:MouseEvent){
-  const target=e.target as HTMLElement;if(target.closest('.uct-media-preview,.uct-mini,.uct-large-preview,.setting-item,.menu'))return;
+  const target=e.target as HTMLElement;if(target.closest('.uct-media-preview,.uct-mini,.uct-large-preview,.setting-item,.menu'))return;if(target.closest(EXTERNAL_CARD))return;
   const media=(target.closest('img,video,audio')??target.closest('.canvas-node,.audio-embed')?.querySelector('img,video,audio')) as HTMLMediaElement|HTMLImageElement|null;if(!media)return;
   const canvas=media.closest('.canvas-node');const markdown=media.closest('.markdown-preview-view,.markdown-source-view');if(!canvas&&!markdown)return;
   const src=(media as HTMLMediaElement).currentSrc||media.getAttribute('src');if(!src)return;
